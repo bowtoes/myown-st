@@ -82,6 +82,9 @@ char *termname = "st-256color";
  */
 unsigned int tabspaces = 8;
 
+float alpha = 0.8; /* Better Alpha */
+float alphaUnfocused = 0.6; /* Better Alpha */
+
 /* Terminal colors (16 first used in escape sequence) */
 static const char *colorname[] = {
 	/* 8 normal colors */
@@ -109,6 +112,7 @@ static const char *colorname[] = {
 	/* more colors can be added after 255 to use with DefaultXX */
 	"#cccccc",
 	"#555555",
+    "black", /* Better Alpha */
 };
 
 
@@ -117,7 +121,8 @@ static const char *colorname[] = {
  * foreground, background, cursor, reverse cursor
  */
 unsigned int defaultfg = 7;
-unsigned int defaultbg = 0;
+// unsigned int defaultbg = 0;
+unsigned int defaultbg = 258; /* Better Alpha */
 static unsigned int defaultcs = 256;
 static unsigned int defaultrcs = 257;
 
@@ -126,7 +131,7 @@ static unsigned int defaultrcs = 257;
  * 2: Block ("█")
  * 4: Underline ("_")
  * 6: Bar ("|")
- * 7: Snowman ("☃")
+ * 7: Snowman ("") REMINDER: ADD THIS CHAR BACK LATER
  */
 static unsigned int cursorshape = 2;
 
