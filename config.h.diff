@@ -1,7 +1,16 @@
-diff --git a/myown-st/config.def.h b/myown-st/config.h
-index 01c7e73..eabb5d2 100644
---- a/myown-st/config.def.h
-+++ b/myown-st/config.h
+--- config.def.h	2020-04-05 03:34:27.273186911 -0400
++++ config.h	2020-04-05 03:34:06.814272756 -0400
+@@ -5,8 +5,8 @@
+  *
+  * font: see http://freedesktop.org/software/fontconfig/fontconfig-user.html
+  */
+-static char *font = "Liberation Mono:pixelsize=12:antialias=true:autohint=true";
+-static int borderpx = 2;
++static char *font = "monospace:pixelsize=12:antialias=true:autohint=true";
++static int borderpx = 0;
+ static char *resourcesFile = "~/.Xcolor"; /* Better Xresources */
+ 
+ /*
 @@ -219,25 +219,34 @@ static MouseShortcut mshortcuts[] = {
  /* Internal keyboard shortcuts. */
  #define MODKEY Mod1Mask
