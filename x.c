@@ -2141,8 +2141,11 @@ config_init(void)
 {
 	XrmDatabase db;
 	ResourcePref *p;
+	int i = 0;
+	char *path;
 
-	char *path = parsepath(resourcesFile);
+	for (; i < LEN(resourceFiles); i++) {
+	path = parsepath(resourceFiles[i]);
 	if (!path)
 		return;
 
@@ -2152,6 +2155,7 @@ config_init(void)
 		return;
 	for (p = resources; p < resources + LEN(resources); p++)
 		resource_load(db, p->name, p->type, p->dst);
+	}
 }
 
 void

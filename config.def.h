@@ -7,7 +7,10 @@
  */
 static char *font = "Liberation Mono:pixelsize=12:antialias=true:autohint=true";
 static int borderpx = 2;
-static char *resourcesFile = "~/.Xcolor"; /* Better Xresources */
+static const char *resourceFiles[] = { /* Better Xresources */
+	"~/.config/xconf/Xcolor",
+	"~/.config/xconf/Xresources",
+};
 
 /*
  * What program is execed by st depends of these precedence rules:
