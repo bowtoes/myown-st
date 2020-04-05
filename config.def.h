@@ -7,6 +7,7 @@
  */
 static char *font = "Liberation Mono:pixelsize=12:antialias=true:autohint=true";
 static int borderpx = 2;
+static char *resourcesFile = "~/.Xcolor"; /* Better Xresources */
 
 /*
  * What program is execed by st depends of these precedence rules:
@@ -83,7 +84,7 @@ char *termname = "st-256color";
 unsigned int tabspaces = 8;
 
 float alpha = 0.8; /* Better Alpha */
-float alphaUnfocused = 0.6; /* Better Alpha */
+float alphaNoFocus = 0.6; /* Better Alpha */
 
 /* Terminal colors (16 first used in escape sequence) */
 static const char *colorname[] = {
@@ -112,7 +113,8 @@ static const char *colorname[] = {
 	/* more colors can be added after 255 to use with DefaultXX */
 	"#cccccc",
 	"#555555",
-    "black", /* Better Alpha */
+	"black", /* Better Xresources */
+	"white", /* Better Xresources */
 };
 
 
@@ -120,9 +122,8 @@ static const char *colorname[] = {
  * Default colors (colorname index)
  * foreground, background, cursor, reverse cursor
  */
-unsigned int defaultfg = 7;
-// unsigned int defaultbg = 0;
-unsigned int defaultbg = 258; /* Better Alpha */
+unsigned int defaultfg = 259; /* Better Xresources */
+unsigned int defaultbg = 258; /* Better Xresources */
 static unsigned int defaultcs = 256;
 static unsigned int defaultrcs = 257;
 
@@ -131,7 +132,7 @@ static unsigned int defaultrcs = 257;
  * 2: Block ("█")
  * 4: Underline ("_")
  * 6: Bar ("|")
- * 7: Snowman ("") REMINDER: ADD THIS CHAR BACK LATER
+ * 7: Snowman ("☃")
  */
 static unsigned int cursorshape = 2;
 
@@ -154,6 +155,48 @@ static unsigned int mousebg = 0;
  * doesn't match the ones requested.
  */
 static unsigned int defaultattr = 11;
+
+/* ++Better Xresources */
+/*
+ * Xresources preferences to load at startup
+ */
+ResourcePref resources[] = {
+		/* Name             Type     Variable */
+		{ "font",           STRING,  &font           },
+		{ "alpha",          FLOAT,   &alpha          }, /* Use this if you use the alpha patch */
+		{ "alphaNoFocus",   FLOAT,   &alphaNoFocus   }, /* Use this if you use the alpha focus patch */
+		{ "colora",         STRING,  &colorname[0]   },
+		{ "colorb",         STRING,  &colorname[1]   },
+		{ "colorc",         STRING,  &colorname[2]   },
+		{ "colord",         STRING,  &colorname[3]   },
+		{ "colore",         STRING,  &colorname[4]   },
+		{ "colorf",         STRING,  &colorname[5]   },
+		{ "colorg",         STRING,  &colorname[6]   },
+		{ "colorh",         STRING,  &colorname[7]   },
+		{ "colorA",         STRING,  &colorname[8]   },
+		{ "colorB",         STRING,  &colorname[9]   },
+		{ "colorC",         STRING,  &colorname[10]  },
+		{ "colorD",         STRING,  &colorname[11]  },
+		{ "colorE",         STRING,  &colorname[12]  },
+		{ "colorF",         STRING,  &colorname[13]  },
+		{ "colorG",         STRING,  &colorname[14]  },
+		{ "colorH",         STRING,  &colorname[15]  },
+		{ "cursor",         STRING,  &colorname[256] },
+		{ "reverseCursor",  STRING,  &colorname[257] },
+		{ "background",     STRING,  &colorname[258] },
+		{ "foreground",     STRING,  &colorname[259] },
+		{ "termname",       STRING,  &termname       },
+		{ "shell",          STRING,  &shell          },
+		{ "xfps",           INTEGER, &xfps           },
+		{ "actionfps",      INTEGER, &actionfps      },
+		{ "blinkTime",      INTEGER, &blinktimeout   },
+		{ "bellvolume",     INTEGER, &bellvolume     },
+		{ "tabspaces",      INTEGER, &tabspaces      },
+		{ "borderpx",       INTEGER, &borderpx       },
+		{ "cwscale",        FLOAT,   &cwscale        },
+		{ "chscale",        FLOAT,   &chscale        },
+};
+/* --Better Xresources */
 
 /*
  * Force mouse select/shortcuts while mask is active (when MODE_MOUSE is set).
@@ -191,6 +234,10 @@ static Shortcut shortcuts[] = {
 	{ TERMMOD,              XK_Y,           selpaste,       {.i =  0} },
 	{ ShiftMask,            XK_Insert,      selpaste,       {.i =  0} },
 	{ TERMMOD,              XK_Num_Lock,    numlock,        {.i =  0} },
+	{ TERMMOD,              XK_R,           loadxresources, {.i =  0} }, /* Better Xresources */
+	{ TERMMOD,              XK_I,           iso14755,       {.i =  0} }, /* ISO14755 */
+	{ ShiftMask,            XK_Page_Up,     kscrollup,      {.i = -1} }, /* Scrollback */
+	{ ShiftMask,            XK_Page_Down,   kscrolldown,    {.i = -1} }, /* Scrollback */
 };
 
 /*

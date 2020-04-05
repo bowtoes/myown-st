@@ -14,6 +14,8 @@
 #include <X11/keysym.h>
 #include <X11/Xft/Xft.h>
 #include <X11/XKBlib.h>
+#include <X11/Xresource.h> /* Better Xresources */
+#include <pwd.h> /* Better Xresources */
 
 static char *argv0;
 #include "arg.h"
@@ -45,6 +47,20 @@ typedef struct {
 	signed char appcursor; /* application cursor */
 } Key;
 
+/* ++Better Xresources */
+enum resource_type {
+	STRING = 0,
+	INTEGER = 1,
+	FLOAT = 2
+};
+
+typedef struct {
+	char *name;
+	enum resource_type type;
+	void *dst;
+} ResourcePref;
+/* --Better Xresources */
+
 /* X modifiers */
 #define XK_ANY_MOD    UINT_MAX
 #define XK_NO_MOD     0
@@ -59,6 +75,7 @@ static void zoom(const Arg *);
 static void zoomabs(const Arg *);
 static void zoomreset(const Arg *);
 static void ttysend(const Arg *);
+static void loadxresources(const Arg *); /* Better Xresources */
 
 /* config.h for applying patches and the configuration. */
 #include "config.h"
@@ -81,6 +98,7 @@ typedef XftGlyphFontSpec GlyphFontSpec;
 typedef struct {
 	int tw, th; /* tty width and height */
 	int w, h; /* window width and height */
+	int hborderpx, vborderpx; /* Anysize */
 	int ch; /* char height */
 	int cw; /* char width  */
 	int mode; /* window state/mode flags */
@@ -105,6 +123,7 @@ typedef struct {
 	XSetWindowAttributes attrs;
 	int scr;
 	int isfixed; /* is fixed geometry? */
+	int depth; /* bit depth */ /* Better Alpha */
 	int l, t; /* left and top offset */
 	int gm; /* geometry mask */
 } XWindow;
@@ -243,6 +262,9 @@ static char *usedfont = NULL;
 static double usedfontsize = 0;
 static double defaultfontsize = 0;
 
+static int focused            = 1;    /* Better Alpha */
+static char *opt_alpha        = NULL; /* Better Alpha */
+static char *opt_alphaNoFocus = NULL; /* Better Alpha */
 static char *opt_class = NULL;
 static char **opt_cmd  = NULL;
 static char *opt_embed = NULL;
@@ -251,6 +273,7 @@ static char *opt_io    = NULL;
 static char *opt_line  = NULL;
 static char *opt_name  = NULL;
 static char *opt_title = NULL;
+static char *opt_dir   = NULL; /* Working Directory */
 
 static int oldbutton = 3; /* button event on startup: 3 = release */
 
@@ -331,7 +354,7 @@ ttysend(const Arg *arg)
 int
 evcol(XEvent *e)
 {
-	int x = e->xbutton.x - borderpx;
+	int x = e->xbutton.x - win.hborderpx; /* Anysize */
 	LIMIT(x, 0, win.tw - 1);
 	return x / win.cw;
 }
@@ -339,7 +362,7 @@ evcol(XEvent *e)
 int
 evrow(XEvent *e)
 {
-	int y = e->xbutton.y - borderpx;
+	int y = e->xbutton.y - win.vborderpx; /* Anysize */
 	LIMIT(y, 0, win.th - 1);
 	return y / win.ch;
 }
@@ -673,6 +696,8 @@ setsel(char *str, Time t)
 	XSetSelectionOwner(xw.dpy, XA_PRIMARY, xw.win, t);
 	if (XGetSelectionOwner(xw.dpy, XA_PRIMARY) != xw.win)
 		selclear();
+
+	clipcopy(NULL); /* Clipboard */
 }
 
 void
@@ -721,6 +746,9 @@ cresize(int width, int height)
 	col = MAX(1, col);
 	row = MAX(1, row);
 
+	win.hborderpx = (win.w - col * win.cw) / 2; /* Anysize */
+	win.vborderpx = (win.h - row * win.ch) / 2; /* Anysize */
+
 	tresize(col, row);
 	xresize(col, row);
 	ttyresize(win.tw, win.th);
@@ -734,7 +762,7 @@ xresize(int col, int row)
 
 	XFreePixmap(xw.dpy, xw.buf);
 	xw.buf = XCreatePixmap(xw.dpy, xw.win, win.w, win.h,
-			DefaultDepth(xw.dpy, xw.scr));
+						xw.depth); /* Better Alpha */
 	XftDrawChange(xw.draw, xw.buf);
 	xclear(0, 0, win.w, win.h);
 
@@ -772,6 +800,23 @@ xloadcolor(int i, const char *name, Color *ncolor)
 	return XftColorAllocName(xw.dpy, xw.vis, xw.cmap, name, ncolor);
 }
 
+/* Better Alpha */
+void
+xloadalpha(void)
+{
+	/* set alpha value of bg color */
+	if (opt_alpha)
+		alpha = strtof(opt_alpha, NULL);
+	if (opt_alphaNoFocus)
+		alphaNoFocus = strtof(opt_alphaNoFocus, NULL);
+
+	const float usedAlpha = focused ? alpha : alphaNoFocus;
+
+	dc.col[defaultbg].color.alpha = (unsigned short)(0xffff * usedAlpha);
+	dc.col[defaultbg].pixel &= 0x00FFFFFF;
+	dc.col[defaultbg].pixel |= (unsigned char)(0xff * usedAlpha) << 24;
+}
+
 void
 xloadcols(void)
 {
@@ -794,6 +839,7 @@ xloadcols(void)
 			else
 				die("could not allocate color %d\n", i);
 		}
+	xloadalpha(); /* Better Alpha */
 	loaded = 1;
 }
 
@@ -838,8 +884,8 @@ xhints(void)
 	sizeh->flags = PSize | PResizeInc | PBaseSize | PMinSize;
 	sizeh->height = win.h;
 	sizeh->width = win.w;
-	sizeh->height_inc = win.ch;
-	sizeh->width_inc = win.cw;
+	sizeh->height_inc = 1; /* Anysize */
+	sizeh->width_inc = 1; /* Anysize */
 	sizeh->base_height = 2 * borderpx;
 	sizeh->base_width = 2 * borderpx;
 	sizeh->min_height = win.ch + 2 * borderpx;
@@ -1103,11 +1149,23 @@ xinit(int cols, int rows)
 	Window parent;
 	pid_t thispid = getpid();
 	XColor xmousefg, xmousebg;
+	XWindowAttributes attr; /* Better Alpha */
+	XVisualInfo vis; /* Better Alpha */
 
-	if (!(xw.dpy = XOpenDisplay(NULL)))
-		die("can't open display\n");
 	xw.scr = XDefaultScreen(xw.dpy);
-	xw.vis = XDefaultVisual(xw.dpy, xw.scr);
+
+	/* ++Better Alpha */
+	if (!(opt_embed && (parent = strtol(opt_embed, NULL, 0)))) {
+		parent = XRootWindow(xw.dpy, xw.scr);
+		xw.depth = 32;
+	} else {
+		XGetWindowAttributes(xw.dpy, parent, &attr);
+		xw.depth = attr.depth;
+	}
+
+	XMatchVisualInfo(xw.dpy, xw.scr, xw.depth, TrueColor, &vis);
+	xw.vis = vis.visual;
+	/* --Better Alpha */
 
 	/* font */
 	if (!FcInit())
@@ -1117,12 +1175,12 @@ xinit(int cols, int rows)
 	xloadfonts(usedfont, 0);
 
 	/* colors */
-	xw.cmap = XDefaultColormap(xw.dpy, xw.scr);
+	xw.cmap = XCreateColormap(xw.dpy, parent, xw.vis, None); /* Better Alpha */
 	xloadcols();
 
 	/* adjust fixed window geometry */
-	win.w = 2 * borderpx + cols * win.cw;
-	win.h = 2 * borderpx + rows * win.ch;
+	win.w = 2 * win.hborderpx + cols * win.cw; /* Anysize */
+	win.h = 2 * win.vborderpx + rows * win.ch; /* Anysize */
 	if (xw.gm & XNegative)
 		xw.l += DisplayWidth(xw.dpy, xw.scr) - win.w - 2;
 	if (xw.gm & YNegative)
@@ -1138,18 +1196,16 @@ xinit(int cols, int rows)
 	xw.attrs.colormap = xw.cmap;
 
 	if (!(opt_embed && (parent = strtol(opt_embed, NULL, 0))))
-		parent = XRootWindow(xw.dpy, xw.scr);
+		parent = XRootWindow(xw.dpy, xw.scr); /* This if is deleted in the default alphaFocusHighlight */
 	xw.win = XCreateWindow(xw.dpy, parent, xw.l, xw.t,
-			win.w, win.h, 0, XDefaultDepth(xw.dpy, xw.scr), InputOutput,
+			win.w, win.h, 0, xw.depth, InputOutput, /* Better Alpha */
 			xw.vis, CWBackPixel | CWBorderPixel | CWBitGravity
 			| CWEventMask | CWColormap, &xw.attrs);
 
 	memset(&gcvalues, 0, sizeof(gcvalues));
 	gcvalues.graphics_exposures = False;
-	dc.gc = XCreateGC(xw.dpy, parent, GCGraphicsExposures,
-			&gcvalues);
-	xw.buf = XCreatePixmap(xw.dpy, xw.win, win.w, win.h,
-			DefaultDepth(xw.dpy, xw.scr));
+	xw.buf = XCreatePixmap(xw.dpy, xw.win, win.w, win.h, xw.depth); /* Better Alpha */
+	dc.gc = XCreateGC(xw.dpy, xw.buf, GCGraphicsExposures, &gcvalues); /* Better Alpha */
 	XSetForeground(xw.dpy, dc.gc, dc.col[defaultbg].pixel);
 	XFillRectangle(xw.dpy, xw.buf, dc.gc, 0, 0, win.w, win.h);
 
@@ -1210,7 +1266,7 @@ xinit(int cols, int rows)
 int
 xmakeglyphfontspecs(XftGlyphFontSpec *specs, const Glyph *glyphs, int len, int x, int y)
 {
-	float winx = borderpx + x * win.cw, winy = borderpx + y * win.ch, xp, yp;
+	float winx = win.hborderpx + x * win.cw, winy = win.vborderpx + y * win.ch, xp, yp; /* Anysize */
 	ushort mode, prevmode = USHRT_MAX;
 	Font *font = &dc.font;
 	int frcflags = FRC_NORMAL;
@@ -1343,7 +1399,7 @@ void
 xdrawglyphfontspecs(const XftGlyphFontSpec *specs, Glyph base, int len, int x, int y)
 {
 	int charlen = len * ((base.mode & ATTR_WIDE) ? 2 : 1);
-	int winx = borderpx + x * win.cw, winy = borderpx + y * win.ch,
+	int winx = win.hborderpx + x * win.cw, winy = win.vborderpx + y * win.ch, /* Anysize */
 	    width = charlen * win.cw;
 	Color *fg, *bg, *temp, revfg, revbg, truefg, truebg;
 	XRenderColor colfg, colbg;
@@ -1433,17 +1489,17 @@ xdrawglyphfontspecs(const XftGlyphFontSpec *specs, Glyph base, int len, int x, i
 
 	/* Intelligent cleaning up of the borders. */
 	if (x == 0) {
-		xclear(0, (y == 0)? 0 : winy, borderpx,
+		xclear(0, (y == 0)? 0 : winy, win.vborderpx, /* Anysize */
 			winy + win.ch +
-			((winy + win.ch >= borderpx + win.th)? win.h : 0));
+			((winy + win.ch >= win.vborderpx + win.th)? win.h : 0)); /* Anysize */
 	}
-	if (winx + width >= borderpx + win.tw) {
+	if (winx + width >= win.hborderpx + win.tw) { /* Anysize */
 		xclear(winx + width, (y == 0)? 0 : winy, win.w,
-			((winy + win.ch >= borderpx + win.th)? win.h : (winy + win.ch)));
+			((winy + win.ch >= win.hborderpx + win.th)? win.h : (winy + win.ch))); /* Anysize */
 	}
 	if (y == 0)
-		xclear(winx, 0, winx + width, borderpx);
-	if (winy + win.ch >= borderpx + win.th)
+		xclear(winx, 0, winx + width, win.hborderpx); /* Anysize */
+	if (winy + win.ch >= win.vborderpx + win.th) /* Anysize */
 		xclear(winx, winy + win.ch, winx + width, win.h);
 
 	/* Clean up the region we want to draw to. */
@@ -1536,35 +1592,35 @@ xdrawcursor(int cx, int cy, Glyph g, int ox, int oy, Glyph og)
 		case 3: /* Blinking Underline */
 		case 4: /* Steady Underline */
 			XftDrawRect(xw.draw, &drawcol,
-					borderpx + cx * win.cw,
-					borderpx + (cy + 1) * win.ch - \
+					win.hborderpx + cx * win.cw, /* Anysize */
+					win.vborderpx + (cy + 1) * win.ch - /* Anysize */ \
 						cursorthickness,
 					win.cw, cursorthickness);
 			break;
 		case 5: /* Blinking bar */
 		case 6: /* Steady bar */
 			XftDrawRect(xw.draw, &drawcol,
-					borderpx + cx * win.cw,
-					borderpx + cy * win.ch,
+					win.hborderpx + cx * win.cw,
+					win.vborderpx + cy * win.ch,
 					cursorthickness, win.ch);
 			break;
 		}
 	} else {
 		XftDrawRect(xw.draw, &drawcol,
-				borderpx + cx * win.cw,
-				borderpx + cy * win.ch,
+				win.hborderpx + cx * win.cw,
+				win.vborderpx + cy * win.ch,
 				win.cw - 1, 1);
 		XftDrawRect(xw.draw, &drawcol,
-				borderpx + cx * win.cw,
-				borderpx + cy * win.ch,
+				win.hborderpx + cx * win.cw,
+				win.vborderpx + cy * win.ch,
 				1, win.ch - 1);
 		XftDrawRect(xw.draw, &drawcol,
-				borderpx + (cx + 1) * win.cw - 1,
-				borderpx + cy * win.ch,
+				win.hborderpx + (cx + 1) * win.cw - 1,
+				win.vborderpx + cy * win.ch,
 				1, win.ch - 1);
 		XftDrawRect(xw.draw, &drawcol,
-				borderpx + cx * win.cw,
-				borderpx + (cy + 1) * win.ch - 1,
+				win.hborderpx + cx * win.cw,
+				win.vborderpx + (cy + 1) * win.ch - 1,
 				win.cw, 1);
 	}
 }
@@ -1730,12 +1786,22 @@ focus(XEvent *ev)
 		xseturgency(0);
 		if (IS_SET(MODE_FOCUS))
 			ttywrite("\033[I", 3, 0);
+		if (!focused) { /* Better Alpha */
+			focused = 1;
+			xloadalpha();
+			redraw();
+		}
 	} else {
 		if (xw.ime.xic)
 			XUnsetICFocus(xw.ime.xic);
 		win.mode &= ~MODE_FOCUSED;
 		if (IS_SET(MODE_FOCUS))
 			ttywrite("\033[O", 3, 0);
+		if (focused) { /* Better Alpha */
+			focused = 0;
+			xloadalpha();
+			redraw();
+		}
 	}
 }
 
@@ -1946,23 +2012,23 @@ run(void)
 			draw();
 			XFlush(xw.dpy);
 
-			if (xev && !FD_ISSET(xfd, &rfd))
-				xev--;
-			if (!FD_ISSET(ttyfd, &rfd) && !FD_ISSET(xfd, &rfd)) {
-				if (blinkset) {
-					if (TIMEDIFF(now, lastblink) \
-							> blinktimeout) {
-						drawtimeout.tv_nsec = 1000;
-					} else {
-						drawtimeout.tv_nsec = (1E6 * \
-							(blinktimeout - \
-							TIMEDIFF(now,
-								lastblink)));
-					}
-					drawtimeout.tv_sec = \
-					    drawtimeout.tv_nsec / 1E9;
-					drawtimeout.tv_nsec %= (long)1E9;
-				} else {
+	 		if (xev && !FD_ISSET(xfd, &rfd))
+	 			xev--;
+	 		if (!FD_ISSET(ttyfd, &rfd) && !FD_ISSET(xfd, &rfd)) {
+	 			if (blinkset) {
+	 				if (TIMEDIFF(now, lastblink) \
+	 						> blinktimeout) {
+	 					drawtimeout.tv_nsec = 1000;
+	 				} else {
+	 					drawtimeout.tv_nsec = (1E6 * \
+	 						(blinktimeout - \
+	 						TIMEDIFF(now,
+	 							lastblink)));
+	 				}
+	 				drawtimeout.tv_sec = \
+	 				    drawtimeout.tv_nsec / 1E9;
+	 				drawtimeout.tv_nsec %= (long)1E9;
+	 			} else {
 					tv = NULL;
 				}
 			}
@@ -1970,15 +2036,142 @@ run(void)
 	}
 }
 
+/* ++Better Xresources */
+/* Slightly modified from surf source */
+static const char*
+getuserhomedir(const char *user)
+{
+	struct passwd *pw;
+
+	if (!(pw = getpwnam(user)))
+		fprintf(stderr, "can't get user %s login information.\n", user);
+	return pw->pw_dir;
+}
+
+/* Slightly modified from surf source */
+static const char*
+getcurrentuserhomedir(void)
+{
+	const char *homedir;
+	const char *user;
+	struct passwd *pw;
+
+	if ((homedir = getenv("HOME"))) return homedir;
+	if ((user    = getenv("USER"))) return getuserhomedir(user);
+
+	if (!(pw = getpwuid(getuid())))
+		fprintf(stderr, "can't get current user home directory\n");
+
+	return pw->pw_dir;
+}
+
+/* Slightly modified from surf source */
+char *
+untildepath(const char *path)
+{
+	char *apath, *name, *p;
+	const char *homedir;
+
+	if (path[1] == '/' || path[1] == '\0') { /* path = "~" or "~/" */
+			p = (char *)&path[1];
+			homedir = getcurrentuserhomedir();
+	} else {
+		name = (p = strchr(path, '/')) ?        /* If there is a '/' in path */
+			strndup(&path[1], p - (path + 1)) : /* Pull off the bit before the '/' */
+			strdup(&path[1]);                   /* Otherwise the whole thing is a name */
+
+		homedir = getuserhomedir(name); /* ??? */
+		free(name);
+	}
+	apath = (char *)malloc(PATH_MAX);
+	snprintf(apath, PATH_MAX, "%s%s", homedir, p);
+	return apath;
+}
+
+char *
+parsepath(const char *path)
+{
+	char *apath, *fpath;
+
+	apath = path[0] == '~' ? untildepath(path) : strdup(path);
+	fpath = realpath(apath, NULL);
+	free(apath);
+
+	return fpath;
+}
+
+int
+resource_load(XrmDatabase db, char *name, enum resource_type rtype, void *dst)
+{
+	char **sdst = dst;
+	int *idst = dst;
+	float *fdst = dst;
+
+	char fullname[256];
+	char fullclass[256];
+	char *type;
+	XrmValue ret;
+
+	snprintf(fullname, sizeof(fullname), "%s.%s",
+			opt_name ? opt_name : "st", name);
+	snprintf(fullclass, sizeof(fullclass), "%s.%s",
+			opt_class ? opt_class : "St", name);
+	fullname[sizeof(fullname) - 1] = fullclass[sizeof(fullclass) - 1] = '\0';
+
+	XrmGetResource(db, fullname, fullclass, &type, &ret);
+	if (ret.addr == NULL || strncmp("String", type, 64))
+		return 1;
+
+	switch (rtype) {
+	case STRING:
+		*sdst = ret.addr;
+		break;
+	case INTEGER:
+		*idst = strtoul(ret.addr, NULL, 10);
+		break;
+	case FLOAT:
+		*fdst = strtof(ret.addr, NULL);
+		break;
+	}
+	return 0;
+}
+
+void
+config_init(void)
+{
+	XrmDatabase db;
+	ResourcePref *p;
+
+	char *path = parsepath(resourcesFile);
+	if (!path)
+		return;
+
+	db = XrmGetFileDatabase(path);
+	free(path);
+	if (!db)
+		return;
+	for (p = resources; p < resources + LEN(resources); p++)
+		resource_load(db, p->name, p->type, p->dst);
+}
+
+void
+loadxresources(const Arg *dummy)
+{
+	config_init();
+	xloadcols();
+	cresize(win.w, win.h);
+}
+/* --Better Xresources */
+
 void
 usage(void)
 {
-	die("usage: %s [-aiv] [-c class] [-f font] [-g geometry]"
-	    " [-n name] [-o file]\n"
+	die("usage: %s [-aiv] [-q alpha] [-Q alpha] [-c class] [-d path]"
+	    " [-f font] [-g geometry] [-n name] [-o file]\n"
 	    "          [-T title] [-t title] [-w windowid]"
 	    " [[-e] command [args ...]]\n"
-	    "       %s [-aiv] [-c class] [-f font] [-g geometry]"
-	    " [-n name] [-o file]\n"
+	    "       %s [-aiv] [-q alpha] [-Q alpha] [-c class] [-d path]"
+	    " [-f font] [-g geometry] [-n name] [-o file]\n"
 	    "          [-T title] [-t title] [-w windowid] -l line"
 	    " [stty_args ...]\n", argv0, argv0);
 }
@@ -1994,8 +2187,17 @@ main(int argc, char *argv[])
 	case 'a':
 		allowaltscreen = 0;
 		break;
+	case 'q': /* Better Alpha */
+		opt_alpha = EARGF(usage());
+		break;
+	case 'Q': /* Better Alpha */
+		opt_alphaNoFocus = EARGF(usage());
+		break;
 	case 'c':
 		opt_class = EARGF(usage());
+		break;
+	case 'd': /* Working Directory */
+		opt_dir = EARGF(usage());
 		break;
 	case 'e':
 		if (argc > 0)
@@ -2043,12 +2245,18 @@ run:
 
 	setlocale(LC_CTYPE, "");
 	XSetLocaleModifiers("");
+
+	if (!(xw.dpy = XOpenDisplay(NULL))) /* Better Xresources */
+		die("can't open display\n");
+	XrmInitialize(); /* Better Xresources */
+	config_init(); /* Better Xresources */
 	cols = MAX(cols, 1);
 	rows = MAX(rows, 1);
 	tnew(cols, rows);
 	xinit(cols, rows);
 	xsetenv();
 	selinit();
+	chdir(opt_dir); /* Working Directory */
 	run();
 
 	return 0;

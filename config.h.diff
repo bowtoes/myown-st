@@ -1,0 +1,53 @@
+diff --git a/myown-st/config.def.h b/myown-st/config.h
+index ff9ca12..310b2c4 100644
+--- a/myown-st/config.def.h
++++ b/myown-st/config.h
+@@ -219,25 +219,34 @@ static MouseShortcut mshortcuts[] = {
+ /* Internal keyboard shortcuts. */
+ #define MODKEY Mod1Mask
+ #define TERMMOD (ControlMask|ShiftMask)
++#define CAPS LockMask
++#define CTRL ControlMask
++#define SHFT ShiftMask
++#define ALT  Mod1Mask
++#define NLCK Mod2Mask
++#define MENU Mod3Mask
++#define SUPR Mod5Mask
+ 
+ static Shortcut shortcuts[] = {
+ 	/* mask                 keysym          function        argument */
+ 	{ XK_ANY_MOD,           XK_Break,       sendbreak,      {.i =  0} },
+-	{ ControlMask,          XK_Print,       toggleprinter,  {.i =  0} },
+-	{ ShiftMask,            XK_Print,       printscreen,    {.i =  0} },
++	{ CTRL,                 XK_Print,       toggleprinter,  {.i =  0} },
++	{ SHFT,                 XK_Print,       printscreen,    {.i =  0} },
+ 	{ XK_ANY_MOD,           XK_Print,       printsel,       {.i =  0} },
+-	{ TERMMOD,              XK_Prior,       zoom,           {.f = +1} },
+-	{ TERMMOD,              XK_Next,        zoom,           {.f = -1} },
+-	{ TERMMOD,              XK_Home,        zoomreset,      {.f =  0} },
+-	{ TERMMOD,              XK_C,           clipcopy,       {.i =  0} },
+-	{ TERMMOD,              XK_V,           clippaste,      {.i =  0} },
+-	{ TERMMOD,              XK_Y,           selpaste,       {.i =  0} },
+-	{ ShiftMask,            XK_Insert,      selpaste,       {.i =  0} },
+-	{ TERMMOD,              XK_Num_Lock,    numlock,        {.i =  0} },
+-	{ TERMMOD,              XK_R,           loadxresources, {.i =  0} }, /* Better Xresources */
+-	{ TERMMOD,              XK_I,           iso14755,       {.i =  0} }, /* ISO14755 */
+-	{ ShiftMask,            XK_Page_Up,     kscrollup,      {.i = -1} }, /* Scrollback */
+-	{ ShiftMask,            XK_Page_Down,   kscrolldown,    {.i = -1} }, /* Scrollback */
++	{ CTRL|SHFT,            XK_Page_Up,     zoom,           {.f = +1} },
++	{ CTRL|SHFT,            XK_Page_Down,   zoom,           {.f = -1} },
++	{ CTRL|SHFT,            XK_Home,        zoomreset,      {.f =  0} },
++	{ CTRL|SHFT,            XK_C,           clipcopy,       {.i =  0} },
++	{ CTRL|SHFT,            XK_V,           clippaste,      {.i =  0} },
++	{ CTRL|SHFT,            XK_Y,           selpaste,       {.i =  0} },
++	{ SHFT,                 XK_Insert,      selpaste,       {.i =  0} },
++	{ CTRL|SHFT,            XK_Num_Lock,    numlock,        {.i =  0} },
++	{ CTRL|SHFT,            XK_R,           loadxresources, {.i =  0} }, /* Better Xresources */
++	{ CTRL|SHFT,            XK_I,           iso14755,       {.i =  0} }, /* ISO14755 */
++	{ ALT,                  XK_Page_Up,     kscrollup,      {.i = -1} }, /* Scrollback */
++	{ ALT,                  XK_Page_Down,   kscrolldown,    {.i = -1} }, /* Scrollback */
++	{ ALT,                  XK_Up,          kscrollup,      {.i =  1} },
++	{ ALT,                  XK_Down,        kscrolldown,    {.i =  1} },
+ };
+ 
+ /*

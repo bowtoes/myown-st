@@ -81,6 +81,10 @@ void die(const char *, ...);
 void redraw(void);
 void draw(void);
 
+void iso14755(const Arg *); /* ISO14755 */
+void externalpipe(const Arg *); /* External Pipe */
+void kscrolldown(const Arg *); /* Scrollback */
+void kscrollup(const Arg *); /* Scrollback */
 void printscreen(const Arg *);
 void printsel(const Arg *);
 void sendbreak(const Arg *);
@@ -122,4 +126,4 @@ extern unsigned int tabspaces;
 extern unsigned int defaultfg;
 extern unsigned int defaultbg;
 extern float alpha; /* Better Alpha */
-extern float alphaUnfocused /* Better Alpha */
+extern float alphaNoFocus; /* Better Alpha */
