@@ -1,5 +1,5 @@
 diff --git a/myown-st/config.def.h b/myown-st/config.h
-index ff9ca12..310b2c4 100644
+index 01c7e73..eabb5d2 100644
 --- a/myown-st/config.def.h
 +++ b/myown-st/config.h
 @@ -219,25 +219,34 @@ static MouseShortcut mshortcuts[] = {
