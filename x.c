@@ -1600,27 +1600,27 @@ xdrawcursor(int cx, int cy, Glyph g, int ox, int oy, Glyph og)
 		case 5: /* Blinking bar */
 		case 6: /* Steady bar */
 			XftDrawRect(xw.draw, &drawcol,
-					win.hborderpx + cx * win.cw,
-					win.vborderpx + cy * win.ch,
+					win.hborderpx + cx * win.cw, /* Anysize */
+					win.vborderpx + cy * win.ch, /* Anysize */
 					cursorthickness, win.ch);
 			break;
 		}
 	} else {
 		XftDrawRect(xw.draw, &drawcol,
-				win.hborderpx + cx * win.cw,
-				win.vborderpx + cy * win.ch,
+				win.hborderpx + cx * win.cw, /* Anysize */
+				win.vborderpx + cy * win.ch, /* Anysize */
 				win.cw - 1, 1);
 		XftDrawRect(xw.draw, &drawcol,
-				win.hborderpx + cx * win.cw,
-				win.vborderpx + cy * win.ch,
+				win.hborderpx + cx * win.cw, /* Anysize */
+				win.vborderpx + cy * win.ch, /* Anysize */
 				1, win.ch - 1);
 		XftDrawRect(xw.draw, &drawcol,
-				win.hborderpx + (cx + 1) * win.cw - 1,
-				win.vborderpx + cy * win.ch,
+				win.hborderpx + (cx + 1) * win.cw - 1, /* Anysize */
+				win.vborderpx + cy * win.ch, /* Anysize */
 				1, win.ch - 1);
 		XftDrawRect(xw.draw, &drawcol,
-				win.hborderpx + cx * win.cw,
-				win.vborderpx + (cy + 1) * win.ch - 1,
+				win.hborderpx + cx * win.cw, /* Anysize */
+				win.vborderpx + (cy + 1) * win.ch - 1, /* Anysize */
 				win.cw, 1);
 	}
 }
@@ -2012,23 +2012,23 @@ run(void)
 			draw();
 			XFlush(xw.dpy);
 
-	 		if (xev && !FD_ISSET(xfd, &rfd))
-	 			xev--;
-	 		if (!FD_ISSET(ttyfd, &rfd) && !FD_ISSET(xfd, &rfd)) {
-	 			if (blinkset) {
-	 				if (TIMEDIFF(now, lastblink) \
-	 						> blinktimeout) {
-	 					drawtimeout.tv_nsec = 1000;
-	 				} else {
-	 					drawtimeout.tv_nsec = (1E6 * \
-	 						(blinktimeout - \
-	 						TIMEDIFF(now,
-	 							lastblink)));
-	 				}
-	 				drawtimeout.tv_sec = \
-	 				    drawtimeout.tv_nsec / 1E9;
-	 				drawtimeout.tv_nsec %= (long)1E9;
-	 			} else {
+			if (xev && !FD_ISSET(xfd, &rfd))
+				xev--;
+			if (!FD_ISSET(ttyfd, &rfd) && !FD_ISSET(xfd, &rfd)) {
+				if (blinkset) {
+					if (TIMEDIFF(now, lastblink) \
+							> blinktimeout) {
+						drawtimeout.tv_nsec = 1000;
+					} else {
+						drawtimeout.tv_nsec = (1E6 * \
+							(blinktimeout - \
+							TIMEDIFF(now,
+								lastblink)));
+					}
+					drawtimeout.tv_sec = \
+					    drawtimeout.tv_nsec / 1E9;
+					drawtimeout.tv_nsec %= (long)1E9;
+				} else {
 					tv = NULL;
 				}
 			}
