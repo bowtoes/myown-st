@@ -166,7 +166,7 @@ static unsigned int defaultattr = 11;
 ResourcePref resources[] = {
 		/* Name             Type     Variable */
 		{ "font",           STRING,  &font           },
-		{ "xcolors",        STRING,  &colorsFile     },
+		{ "xcolorsFile",    STRING,  &colorsFile     },
 		{ "alpha",          FLOAT,   &alpha          }, /* Use this if you use the alpha patch */
 		{ "alphaNoFocus",   FLOAT,   &alphaNoFocus   }, /* Use this if you use the alpha focus patch */
 		{ "color0",         STRING,  &colorname[0]   },

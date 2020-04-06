@@ -1,5 +1,5 @@
---- config.def.h	2020-04-06 03:40:29.927717906 -0400
-+++ config.h	2020-04-06 03:44:37.164908456 -0400
+--- config.def.h	2020-04-06 03:57:04.256095450 -0400
++++ config.h	2020-04-06 03:56:51.646757533 -0400
 @@ -5,8 +5,8 @@
   *
   * font: see http://freedesktop.org/software/fontconfig/fontconfig-user.html
