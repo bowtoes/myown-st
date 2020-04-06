@@ -1,5 +1,5 @@
---- config.def.h	2020-04-05 06:09:33.227683067 -0400
-+++ config.h	2020-04-05 06:10:22.055087407 -0400
+--- config.def.h	2020-04-06 03:40:29.927717906 -0400
++++ config.h	2020-04-06 03:44:37.164908456 -0400
 @@ -5,8 +5,8 @@
   *
   * font: see http://freedesktop.org/software/fontconfig/fontconfig-user.html
@@ -9,9 +9,9 @@
 +static char *font = "monospace:pixelsize=12:antialias=true:autohint=true";
 +static int borderpx = 0;
  static const char *resourceFiles[] = { /* Better Xresources */
- 	"~/.config/xconf/Xcolor",
  	"~/.config/xconf/Xresources",
-@@ -222,25 +222,34 @@ static MouseShortcut mshortcuts[] = {
+ };
+@@ -223,25 +223,34 @@ static MouseShortcut mshortcuts[] = {
  /* Internal keyboard shortcuts. */
  #define MODKEY Mod1Mask
  #define TERMMOD (ControlMask|ShiftMask)
@@ -39,7 +39,7 @@
 -	{ TERMMOD,              XK_Y,           selpaste,       {.i =  0} },
 -	{ ShiftMask,            XK_Insert,      selpaste,       {.i =  0} },
 -	{ TERMMOD,              XK_Num_Lock,    numlock,        {.i =  0} },
--	{ TERMMOD,              XK_R,           loadxresources, {.i =  0} }, /* Better Xresources */
+-	{ TERMMOD,              XK_R,           rloadResources, {.i =  0} }, /* Better Xresources */
 -	{ TERMMOD,              XK_I,           iso14755,       {.i =  0} }, /* ISO14755 */
 -	{ ShiftMask,            XK_Page_Up,     kscrollup,      {.i = -1} }, /* Scrollback */
 -	{ ShiftMask,            XK_Page_Down,   kscrolldown,    {.i = -1} }, /* Scrollback */
@@ -51,7 +51,7 @@
 +	{ CTRL|SHFT,            XK_Y,           selpaste,       {.i =  0} },
 +	{ SHFT,                 XK_Insert,      selpaste,       {.i =  0} },
 +	{ CTRL|SHFT,            XK_Num_Lock,    numlock,        {.i =  0} },
-+	{ CTRL|SHFT,            XK_R,           loadxresources, {.i =  0} }, /* Better Xresources */
++	{ CTRL|SHFT,            XK_R,           rloadResources, {.i =  0} }, /* Better Xresources */
 +	{ CTRL|SHFT,            XK_I,           iso14755,       {.i =  0} }, /* ISO14755 */
 +	{ ALT,                  XK_Page_Up,     kscrollup,      {.i = -1} }, /* Scrollback */
 +	{ ALT,                  XK_Page_Down,   kscrolldown,    {.i = -1} }, /* Scrollback */

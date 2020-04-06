@@ -75,7 +75,7 @@ static void zoom(const Arg *);
 static void zoomabs(const Arg *);
 static void zoomreset(const Arg *);
 static void ttysend(const Arg *);
-static void loadxresources(const Arg *); /* Better Xresources */
+static void rloadResources(const Arg *); /* Better Xresources */
 
 /* config.h for applying patches and the configuration. */
 #include "config.h"
@@ -2088,20 +2088,8 @@ untildepath(const char *path)
 	return apath;
 }
 
-char *
-parsepath(const char *path)
-{
-	char *apath, *fpath;
-
-	apath = path[0] == '~' ? untildepath(path) : strdup(path);
-	fpath = realpath(apath, NULL);
-	free(apath);
-
-	return fpath;
-}
-
 int
-resource_load(XrmDatabase db, char *name, enum resource_type rtype, void *dst)
+loadDatabase(XrmDatabase db, char *name, enum resource_type rtype, void *dst)
 {
 	char **sdst = dst;
 	int *idst = dst;
@@ -2112,56 +2100,59 @@ resource_load(XrmDatabase db, char *name, enum resource_type rtype, void *dst)
 	char *type;
 	XrmValue ret;
 
-	snprintf(fullname, sizeof(fullname), "%s.%s",
-			opt_name ? opt_name : "st", name);
-	snprintf(fullclass, sizeof(fullclass), "%s.%s",
-			opt_class ? opt_class : "St", name);
-	fullname[sizeof(fullname) - 1] = fullclass[sizeof(fullclass) - 1] = '\0';
+	snprintf(fullname,  sizeof(fullname),  "%s.%s", opt_name  ? opt_name  : "st", name);
+	snprintf(fullclass, sizeof(fullclass), "%s.%s", opt_class ? opt_class : "St", name);
 
 	XrmGetResource(db, fullname, fullclass, &type, &ret);
 	if (ret.addr == NULL || strncmp("String", type, 64))
 		return 1;
 
-	switch (rtype) {
-	case STRING:
+	if (rtype == STRING)
 		*sdst = ret.addr;
-		break;
-	case INTEGER:
+	else if (rtype == INTEGER)
 		*idst = strtoul(ret.addr, NULL, 10);
-		break;
-	case FLOAT:
+	else if (rtype == FLOAT)
 		*fdst = strtof(ret.addr, NULL);
-		break;
-	}
+
 	return 0;
 }
 
 void
-config_init(void)
+loadResourceFile(const char *file)
 {
 	XrmDatabase db;
 	ResourcePref *p;
-	int i = 0;
-	char *path;
+	char *apath, *path;
 
-	for (; i < LEN(resourceFiles); i++) {
-	path = parsepath(resourceFiles[i]);
+	apath = file[0] == '~' ? untildepath(file) : strdup(file);
+	path = realpath(apath, NULL);
+	free(apath);
+
 	if (!path)
 		return;
-
 	db = XrmGetFileDatabase(path);
 	free(path);
+
 	if (!db)
 		return;
 	for (p = resources; p < resources + LEN(resources); p++)
-		resource_load(db, p->name, p->type, p->dst);
-	}
+		loadDatabase(db, p->name, p->type, p->dst);
 }
 
 void
-loadxresources(const Arg *dummy)
+loadResources(void)
 {
-	config_init();
+	int i = 0;
+
+	for (; i < LEN(resourceFiles); i++)
+		loadResourceFile(resourceFiles[i]);
+	loadResourceFile(colorsFile);
+}
+
+void
+rloadResources(const Arg *dummy)
+{
+	loadResources();
 	xloadcols();
 	cresize(win.w, win.h);
 }
@@ -2253,7 +2244,7 @@ run:
 	if (!(xw.dpy = XOpenDisplay(NULL))) /* Better Xresources */
 		die("can't open display\n");
 	XrmInitialize(); /* Better Xresources */
-	config_init(); /* Better Xresources */
+	loadResources(); /* Better Xresources */
 	cols = MAX(cols, 1);
 	rows = MAX(rows, 1);
 	tnew(cols, rows);

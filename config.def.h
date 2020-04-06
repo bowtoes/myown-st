@@ -8,9 +8,9 @@
 static char *font = "Liberation Mono:pixelsize=12:antialias=true:autohint=true";
 static int borderpx = 2;
 static const char *resourceFiles[] = { /* Better Xresources */
-	"~/.config/xconf/Xcolor",
 	"~/.config/xconf/Xresources",
 };
+static char *colorsFile = "~/.config/xconf/Xcolor";
 
 /*
  * What program is execed by st depends of these precedence rules:
@@ -166,6 +166,7 @@ static unsigned int defaultattr = 11;
 ResourcePref resources[] = {
 		/* Name             Type     Variable */
 		{ "font",           STRING,  &font           },
+		{ "xcolors",        STRING,  &colorsFile     },
 		{ "alpha",          FLOAT,   &alpha          }, /* Use this if you use the alpha patch */
 		{ "alphaNoFocus",   FLOAT,   &alphaNoFocus   }, /* Use this if you use the alpha focus patch */
 		{ "color0",         STRING,  &colorname[0]   },
@@ -237,7 +238,7 @@ static Shortcut shortcuts[] = {
 	{ TERMMOD,              XK_Y,           selpaste,       {.i =  0} },
 	{ ShiftMask,            XK_Insert,      selpaste,       {.i =  0} },
 	{ TERMMOD,              XK_Num_Lock,    numlock,        {.i =  0} },
-	{ TERMMOD,              XK_R,           loadxresources, {.i =  0} }, /* Better Xresources */
+	{ TERMMOD,              XK_R,           rloadResources, {.i =  0} }, /* Better Xresources */
 	{ TERMMOD,              XK_I,           iso14755,       {.i =  0} }, /* ISO14755 */
 	{ ShiftMask,            XK_Page_Up,     kscrollup,      {.i = -1} }, /* Scrollback */
 	{ ShiftMask,            XK_Page_Down,   kscrolldown,    {.i = -1} }, /* Scrollback */
