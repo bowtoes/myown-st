@@ -1,5 +1,7 @@
---- config.def.h	2020-04-06 03:57:04.256095450 -0400
-+++ config.h	2020-04-06 03:56:51.646757533 -0400
+diff --git a/myown-st/config.def.h b/myown-st/config.h
+index 3a2e62a..b1ae684 100644
+--- a/myown-st/config.def.h
++++ b/myown-st/config.h
 @@ -5,8 +5,8 @@
   *
   * font: see http://freedesktop.org/software/fontconfig/fontconfig-user.html
@@ -18,10 +20,10 @@
 +#define CAPS LockMask
 +#define CTRL ControlMask
 +#define SHFT ShiftMask
-+#define ALT  Mod1Mask
-+#define NLCK Mod2Mask
-+#define MENU Mod3Mask
-+#define SUPR Mod5Mask
++#define MOD1 Mod1Mask /* Alt */
++#define MOD2 Mod2Mask /* Numlock */
++#define MOD3 Mod3Mask /* Menu */
++#define MOD4 Mod4Mask /* Super */
  
  static Shortcut shortcuts[] = {
  	/* mask                 keysym          function        argument */
