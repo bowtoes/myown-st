@@ -1,7 +1,5 @@
-diff --git a/myown-st/config.def.h b/myown-st/config.h
-index 3a2e62a..b1ae684 100644
---- a/myown-st/config.def.h
-+++ b/myown-st/config.h
+--- config.def.h	2020-04-26 17:18:49.000814474 -0400
++++ config.h	2020-04-26 17:20:34.688631150 -0400
 @@ -5,8 +5,8 @@
   *
   * font: see http://freedesktop.org/software/fontconfig/fontconfig-user.html
@@ -13,7 +11,23 @@ index 3a2e62a..b1ae684 100644
  static const char *resourceFiles[] = { /* Better Xresources */
  	"~/.config/xconf/Xresources",
  };
-@@ -223,25 +223,34 @@ static MouseShortcut mshortcuts[] = {
+@@ -169,11 +169,10 @@ ResourcePref resources[] = {
+ 		/* Name             Type     Variable */
+ 		{ "font",           STRING,  &font           },
+ 		{ "xcolorsFile",    STRING,  &colorsFile     },
+-//		{ "alpha",          FLOAT,   &alpha          }, /* Use this if you use the alpha or betteralpha patch */
+-//		{ "alphaUnfocussed",FLOAT,   &alphaUnfocussed}, /* Use this if you use the alpha focus patch */
+-//		{ "alphaNoFocus",   FLOAT,   &alphaNoFocus   }, /* Use this if you use the betteralpha patch */
+-//		{ "alpha2",         FLOAT,   &alpha2         }, /* Use this if you use the betteralpha patch */
+-//		{ "alpha2NoFocus",  FLOAT,   &alpha2NoFocus  }, /* Use this if you use the betteralpha patch */
++		{ "alpha",          FLOAT,   &alpha          }, /* Use this if you use the alpha or betteralpha patch */
++		{ "alphaNoFocus",   FLOAT,   &alphaNoFocus   }, /* Use this if you use the betteralpha patch */
++		{ "alpha2",         FLOAT,   &alpha2         }, /* Use this if you use the betteralpha patch */
++		{ "alpha2NoFocus",  FLOAT,   &alpha2NoFocus  }, /* Use this if you use the betteralpha patch */
+ 		{ "color0",         STRING,  &colorname[0]   },
+ 		{ "color1",         STRING,  &colorname[1]   },
+ 		{ "color2",         STRING,  &colorname[2]   },
+@@ -230,26 +229,35 @@ static MouseShortcut mshortcuts[] = {
  /* Internal keyboard shortcuts. */
  #define MODKEY Mod1Mask
  #define TERMMOD (ControlMask|ShiftMask)
@@ -41,6 +55,7 @@ index 3a2e62a..b1ae684 100644
 -	{ TERMMOD,              XK_Y,           selpaste,       {.i =  0} },
 -	{ ShiftMask,            XK_Insert,      selpaste,       {.i =  0} },
 -	{ TERMMOD,              XK_Num_Lock,    numlock,        {.i =  0} },
+-	{ TERMMOD,              XK_P,           toggleAlpha   , {.i =  0} }, /* Better Alpha */
 -	{ TERMMOD,              XK_R,           rloadResources, {.i =  0} }, /* Better Xresources */
 -	{ TERMMOD,              XK_I,           iso14755,       {.i =  0} }, /* ISO14755 */
 -	{ ShiftMask,            XK_Page_Up,     kscrollup,      {.i = -1} }, /* Scrollback */
@@ -53,12 +68,13 @@ index 3a2e62a..b1ae684 100644
 +	{ CTRL|SHFT,            XK_Y,           selpaste,       {.i =  0} },
 +	{ SHFT,                 XK_Insert,      selpaste,       {.i =  0} },
 +	{ CTRL|SHFT,            XK_Num_Lock,    numlock,        {.i =  0} },
++	{ CTRL|SHFT,            XK_P,           toggleAlpha,    {.i =  0} }, /* Better Alpha */
 +	{ CTRL|SHFT,            XK_R,           rloadResources, {.i =  0} }, /* Better Xresources */
 +	{ CTRL|SHFT,            XK_I,           iso14755,       {.i =  0} }, /* ISO14755 */
-+	{ ALT,                  XK_Page_Up,     kscrollup,      {.i = -1} }, /* Scrollback */
-+	{ ALT,                  XK_Page_Down,   kscrolldown,    {.i = -1} }, /* Scrollback */
-+	{ ALT,                  XK_Up,          kscrollup,      {.i =  1} },
-+	{ ALT,                  XK_Down,        kscrolldown,    {.i =  1} },
++	{ MOD1,                 XK_Page_Up,     kscrollup,      {.i = -1} }, /* Scrollback */
++	{ MOD1,                 XK_Page_Down,   kscrolldown,    {.i = -1} }, /* Scrollback */
++	{ MOD1,                 XK_Up,          kscrollup,      {.i =  1} },
++	{ MOD1,                 XK_Down,        kscrolldown,    {.i =  1} },
  };
  
  /*
