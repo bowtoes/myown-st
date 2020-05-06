@@ -1,5 +1,5 @@
---- config.def.h	2020-04-26 17:18:49.000814474 -0400
-+++ config.h	2020-04-26 17:20:34.688631150 -0400
+--- config.def.h	2020-05-06 08:20:44.424402402 -0400
++++ config.h	2020-05-06 08:25:58.248517974 -0400
 @@ -5,8 +5,8 @@
   *
   * font: see http://freedesktop.org/software/fontconfig/fontconfig-user.html
@@ -11,23 +11,27 @@
  static const char *resourceFiles[] = { /* Better Xresources */
  	"~/.config/xconf/Xresources",
  };
-@@ -169,11 +169,10 @@ ResourcePref resources[] = {
- 		/* Name             Type     Variable */
+@@ -172,15 +172,15 @@ ResourcePref resources[] = {
  		{ "font",           STRING,  &font           },
  		{ "xcolorsFile",    STRING,  &colorsFile     },
--//		{ "alpha",          FLOAT,   &alpha          }, /* Use this if you use the alpha or betteralpha patch */
--//		{ "alphaUnfocussed",FLOAT,   &alphaUnfocussed}, /* Use this if you use the alpha focus patch */
--//		{ "alphaNoFocus",   FLOAT,   &alphaNoFocus   }, /* Use this if you use the betteralpha patch */
--//		{ "alpha2",         FLOAT,   &alpha2         }, /* Use this if you use the betteralpha patch */
--//		{ "alpha2NoFocus",  FLOAT,   &alpha2NoFocus  }, /* Use this if you use the betteralpha patch */
-+		{ "alpha",          FLOAT,   &alpha          }, /* Use this if you use the alpha or betteralpha patch */
-+		{ "alphaNoFocus",   FLOAT,   &alphaNoFocus   }, /* Use this if you use the betteralpha patch */
-+		{ "alpha2",         FLOAT,   &alpha2         }, /* Use this if you use the betteralpha patch */
-+		{ "alpha2NoFocus",  FLOAT,   &alpha2NoFocus  }, /* Use this if you use the betteralpha patch */
+ /*		Use this if you use the alpha or betteralpha patch */
+-/*		{ "alpha",          FLOAT,   &alpha          },    */
++		{ "alpha",          FLOAT,   &alpha          },
+ /*		Use this if you use the alpha focus patch          */
+ /*		{ "alphaUnfocussed",FLOAT,   &alphaUnfocussed},    */
+ /*		Use this if you use the betteralpha patch          */
+-/*		{ "alphaNoFocus",   FLOAT,   &alphaNoFocus   },    */
++		{ "alphaNoFocus",   FLOAT,   &alphaNoFocus   },
+ /*		Use this if you use the betteralpha patch          */
+-/*		{ "alpha2",         FLOAT,   &alpha2         },    */
++		{ "alpha2",         FLOAT,   &alpha2         },
+ /*		Use this if you use the betteralpha patch          */
+-/*		{ "alpha2NoFocus",  FLOAT,   &alpha2NoFocus  },    */
++		{ "alpha2NoFocus",  FLOAT,   &alpha2NoFocus  },
  		{ "color0",         STRING,  &colorname[0]   },
  		{ "color1",         STRING,  &colorname[1]   },
  		{ "color2",         STRING,  &colorname[2]   },
-@@ -230,26 +229,35 @@ static MouseShortcut mshortcuts[] = {
+@@ -237,31 +237,40 @@ static MouseShortcut mshortcuts[] = {
  /* Internal keyboard shortcuts. */
  #define MODKEY Mod1Mask
  #define TERMMOD (ControlMask|ShiftMask)
@@ -55,11 +59,6 @@
 -	{ TERMMOD,              XK_Y,           selpaste,       {.i =  0} },
 -	{ ShiftMask,            XK_Insert,      selpaste,       {.i =  0} },
 -	{ TERMMOD,              XK_Num_Lock,    numlock,        {.i =  0} },
--	{ TERMMOD,              XK_P,           toggleAlpha   , {.i =  0} }, /* Better Alpha */
--	{ TERMMOD,              XK_R,           rloadResources, {.i =  0} }, /* Better Xresources */
--	{ TERMMOD,              XK_I,           iso14755,       {.i =  0} }, /* ISO14755 */
--	{ ShiftMask,            XK_Page_Up,     kscrollup,      {.i = -1} }, /* Scrollback */
--	{ ShiftMask,            XK_Page_Down,   kscrolldown,    {.i = -1} }, /* Scrollback */
 +	{ CTRL|SHFT,            XK_Page_Up,     zoom,           {.f = +1} },
 +	{ CTRL|SHFT,            XK_Page_Down,   zoom,           {.f = -1} },
 +	{ CTRL|SHFT,            XK_Home,        zoomreset,      {.f =  0} },
@@ -68,11 +67,21 @@
 +	{ CTRL|SHFT,            XK_Y,           selpaste,       {.i =  0} },
 +	{ SHFT,                 XK_Insert,      selpaste,       {.i =  0} },
 +	{ CTRL|SHFT,            XK_Num_Lock,    numlock,        {.i =  0} },
-+	{ CTRL|SHFT,            XK_P,           toggleAlpha,    {.i =  0} }, /* Better Alpha */
-+	{ CTRL|SHFT,            XK_R,           rloadResources, {.i =  0} }, /* Better Xresources */
-+	{ CTRL|SHFT,            XK_I,           iso14755,       {.i =  0} }, /* ISO14755 */
-+	{ MOD1,                 XK_Page_Up,     kscrollup,      {.i = -1} }, /* Scrollback */
-+	{ MOD1,                 XK_Page_Down,   kscrolldown,    {.i = -1} }, /* Scrollback */
+ 	/* Better Alpha */
+-	{ TERMMOD,              XK_P,           toggleAlpha   , {.i =  0} },
++	{ CTRL|SHFT,            XK_P,           toggleAlpha,    {.i =  0} },
+ 	/* Better Xresources */
+-	{ TERMMOD,              XK_R,           rloadResources, {.i =  0} },
++	{ CTRL|SHFT,            XK_R,           rloadResources, {.i =  0} },
+ 	/* ISO14755 */
+-	{ TERMMOD,              XK_I,           iso14755,       {.i =  0} },
++	{ CTRL|SHFT,            XK_I,           iso14755,       {.i =  0} },
+ 	/* Scrollback */
+-	{ ShiftMask,            XK_Page_Up,     kscrollup,      {.i = -1} },
++	{ MOD1,                 XK_Page_Up,     kscrollup,      {.i = -1} },
+ 	/* Scrollback */
+-	{ ShiftMask,            XK_Page_Down,   kscrolldown,    {.i = -1} },
++	{ MOD1,                 XK_Page_Down,   kscrolldown,    {.i = -1} },
 +	{ MOD1,                 XK_Up,          kscrollup,      {.i =  1} },
 +	{ MOD1,                 XK_Down,        kscrolldown,    {.i =  1} },
  };

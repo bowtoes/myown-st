@@ -3,6 +3,7 @@
 #include <math.h>
 #include <limits.h>
 #include <locale.h>
+#include <pwd.h> /* Better Xresources */
 #include <signal.h>
 #include <sys/select.h>
 #include <time.h>
@@ -15,7 +16,6 @@
 #include <X11/Xft/Xft.h>
 #include <X11/XKBlib.h>
 #include <X11/Xresource.h> /* Better Xresources */
-#include <pwd.h> /* Better Xresources */
 
 char *argv0;
 #include "arg.h"
@@ -47,19 +47,19 @@ typedef struct {
 	signed char appcursor; /* application cursor */
 } Key;
 
-/* ++Better Xresources */
+/* Better Xresources */
 enum resource_type {
 	STRING = 0,
 	INTEGER = 1,
 	FLOAT = 2
 };
 
+/* Better Xresources */
 typedef struct {
 	char *name;
 	enum resource_type type;
 	void *dst;
 } ResourcePref;
-/* --Better Xresources */
 
 /* X modifiers */
 #define XK_ANY_MOD    UINT_MAX
@@ -75,7 +75,7 @@ static void zoom(const Arg *);
 static void zoomabs(const Arg *);
 static void zoomreset(const Arg *);
 static void ttysend(const Arg *);
-static void toggleAlpha(const Arg *);
+static void toggleAlpha(const Arg *); /* Better Alpha */
 static void rloadResources(const Arg *); /* Better Xresources */
 
 /* config.h for applying patches and the configuration. */
@@ -124,7 +124,7 @@ typedef struct {
 	XSetWindowAttributes attrs;
 	int scr;
 	int isfixed; /* is fixed geometry? */
-	int depth; /* bit depth */ /* Better Alpha */
+	int bitdepth; /* Better Alpha */
 	int l, t; /* left and top offset */
 	int gm; /* geometry mask */
 } XWindow;
@@ -766,7 +766,7 @@ xresize(int col, int row)
 
 	XFreePixmap(xw.dpy, xw.buf);
 	xw.buf = XCreatePixmap(xw.dpy, xw.win, win.w, win.h,
-						xw.depth); /* Better Alpha */
+						xw.bitdepth); /* Better Alpha */
 	XftDrawChange(xw.draw, xw.buf);
 	xclear(0, 0, win.w, win.h);
 
@@ -808,6 +808,7 @@ xloadcolor(int i, const char *name, Color *ncolor)
 void
 xloadalpha(void)
 {
+
 	/* set alpha value of bg color */
 	if (opt_alpha)
 		alpha = strtof(opt_alpha, NULL);
@@ -818,8 +819,9 @@ xloadalpha(void)
 	if (opt_alpha2NoFocus)
 		alpha2NoFocus = strtof(opt_alpha2NoFocus, NULL);
 
-	const float usedAlpha = alphaMode ? (focused * alpha  + (1 - focused) * alphaNoFocus ):
-	                                    (focused * alpha2 + (1 - focused) * alpha2NoFocus);
+	const float usedAlpha = alphaMode ?
+	                        (focused * alpha  + (1 - focused) * alphaNoFocus ):
+	                        (focused * alpha2 + (1 - focused) * alpha2NoFocus);
 	dc.col[defaultbg].color.alpha = (unsigned short)(0xffff * usedAlpha);
 	dc.col[defaultbg].pixel &= 0x00FFFFFF;
 	dc.col[defaultbg].pixel |= (unsigned char)(0xff * usedAlpha) << 24;
@@ -1162,18 +1164,19 @@ xinit(int cols, int rows)
 
 	xw.scr = XDefaultScreen(xw.dpy);
 
-	/* ++Better Alpha */
+	/* Better Alpha */
 	if (!(opt_embed && (parent = strtol(opt_embed, NULL, 0)))) {
 		parent = XRootWindow(xw.dpy, xw.scr);
-		xw.depth = 32;
+		xw.bitdepth = 32;
 	} else {
 		XGetWindowAttributes(xw.dpy, parent, &attr);
-		xw.depth = attr.depth;
+		xw.bitdepth = attr.depth;
 	}
 
-	XMatchVisualInfo(xw.dpy, xw.scr, xw.depth, TrueColor, &vis);
+	/* Better Alpha */
+	XMatchVisualInfo(xw.dpy, xw.scr, xw.bitdepth, TrueColor, &vis);
+	/* Better Alpha */
 	xw.vis = vis.visual;
-	/* --Better Alpha */
 
 	/* font */
 	if (!FcInit())
@@ -1203,17 +1206,18 @@ xinit(int cols, int rows)
 		| ButtonMotionMask | ButtonPressMask | ButtonReleaseMask;
 	xw.attrs.colormap = xw.cmap;
 
-	if (!(opt_embed && (parent = strtol(opt_embed, NULL, 0))))
-		parent = XRootWindow(xw.dpy, xw.scr); /* This if is deleted in the default alphaFocusHighlight */
 	xw.win = XCreateWindow(xw.dpy, parent, xw.l, xw.t,
-			win.w, win.h, 0, xw.depth, InputOutput, /* Better Alpha */
+			win.w, win.h, 0, xw.bitdepth, InputOutput, /* Better Alpha */
 			xw.vis, CWBackPixel | CWBorderPixel | CWBitGravity
 			| CWEventMask | CWColormap, &xw.attrs);
 
 	memset(&gcvalues, 0, sizeof(gcvalues));
 	gcvalues.graphics_exposures = False;
-	xw.buf = XCreatePixmap(xw.dpy, xw.win, win.w, win.h, xw.depth); /* Better Alpha */
-	dc.gc = XCreateGC(xw.dpy, xw.buf, GCGraphicsExposures, &gcvalues); /* Better Alpha */
+	/* Better Alpha */
+	xw.buf = XCreatePixmap(xw.dpy, xw.win, win.w, win.h,
+			xw.bitdepth);
+	dc.gc = XCreateGC(xw.dpy, xw.buf, GCGraphicsExposures,
+			&gcvalues);
 	XSetForeground(xw.dpy, dc.gc, dc.col[defaultbg].pixel);
 	XFillRectangle(xw.dpy, xw.buf, dc.gc, 0, 0, win.w, win.h);
 
@@ -2044,7 +2048,10 @@ run(void)
 	}
 }
 
-/* ++Better Xresources */
+/* Better Xresources */
+/* TODO: Simplify these and clean them up as much as possible *
+ * Also understand them
+ */
 /* Slightly modified from surf source */
 static const char*
 getuserhomedir(const char *user)
@@ -2056,6 +2063,7 @@ getuserhomedir(const char *user)
 	return pw->pw_dir;
 }
 
+/* Better Xresources */
 /* Slightly modified from surf source */
 static const char*
 getcurrentuserhomedir(void)
@@ -2064,8 +2072,10 @@ getcurrentuserhomedir(void)
 	const char *user;
 	struct passwd *pw;
 
-	if ((homedir = getenv("HOME"))) return homedir;
-	if ((user    = getenv("USER"))) return getuserhomedir(user);
+	if ((homedir = getenv("HOME")))
+		return homedir;
+	if ((user = getenv("USER")))
+		return getuserhomedir(user);
 
 	if (!(pw = getpwuid(getuid())))
 		fprintf(stderr, "can't get current user home directory\n");
@@ -2073,7 +2083,9 @@ getcurrentuserhomedir(void)
 	return pw->pw_dir;
 }
 
+/* Better Xresources */
 /* Slightly modified from surf source */
+/* Assumes path has ~ in it? */
 char *
 untildepath(const char *path)
 {
@@ -2081,12 +2093,16 @@ untildepath(const char *path)
 	const char *homedir;
 
 	if (path[1] == '/' || path[1] == '\0') { /* path = "~" or "~/" */
-			p = (char *)&path[1];
-			homedir = getcurrentuserhomedir();
+		p = (char *)&path[1]; /* Why not just path + 1?
+		                       * To create a copy starting at path + 1? */
+		homedir = getcurrentuserhomedir();
 	} else {
-		name = (p = strchr(path, '/')) ?        /* If there is a '/' in path */
-			strndup(&path[1], p - (path + 1)) : /* Pull off the bit before the '/' */
-			strdup(&path[1]);                   /* Otherwise the whole thing is a name */
+		/* If there is a '/' in path */
+		name = (p = strchr(path, '/')) ?
+		    /* Pull off the bit before the '/' */
+		    strndup(&path[1], p - (path + 1)) :
+		    /* Otherwise the whole thing is a name */
+		    strdup(&path[1]);
 
 		homedir = getuserhomedir(name); /* ??? */
 		free(name);
@@ -2096,6 +2112,7 @@ untildepath(const char *path)
 	return apath;
 }
 
+/* Better Xresources */
 int
 loadDatabase(XrmDatabase db, char *name, enum resource_type rtype, void *dst)
 {
@@ -2108,8 +2125,10 @@ loadDatabase(XrmDatabase db, char *name, enum resource_type rtype, void *dst)
 	char *type;
 	XrmValue ret;
 
-	snprintf(fullname,  sizeof(fullname),  "%s.%s", opt_name  ? opt_name  : "st", name);
-	snprintf(fullclass, sizeof(fullclass), "%s.%s", opt_class ? opt_class : "St", name);
+	snprintf(fullname,  sizeof(fullname),  "%s.%s",
+	        opt_name  ? opt_name  : "st", name);
+	snprintf(fullclass, sizeof(fullclass), "%s.%s",
+	        opt_class ? opt_class : "St", name);
 
 	XrmGetResource(db, fullname, fullclass, &type, &ret);
 	if (ret.addr == NULL || strncmp("String", type, 64))
@@ -2125,6 +2144,7 @@ loadDatabase(XrmDatabase db, char *name, enum resource_type rtype, void *dst)
 	return 0;
 }
 
+/* Better Xresources */
 void
 loadResourceFile(const char *file)
 {
@@ -2147,6 +2167,7 @@ loadResourceFile(const char *file)
 		loadDatabase(db, p->name, p->type, p->dst);
 }
 
+/* Better Xresources */
 void
 loadResources(void)
 {
@@ -2157,6 +2178,7 @@ loadResources(void)
 	loadResourceFile(colorsFile);
 }
 
+/* Better Xresources */
 void
 rloadResources(const Arg *dummy)
 {
@@ -2164,7 +2186,6 @@ rloadResources(const Arg *dummy)
 	xloadcols();
 	cresize(win.w, win.h);
 }
-/* --Better Xresources */
 
 void
 usage(void)
