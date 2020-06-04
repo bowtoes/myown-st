@@ -1,5 +1,5 @@
---- config.def.h	2020-05-06 08:20:44.424402402 -0400
-+++ config.h	2020-05-06 08:25:58.248517974 -0400
+--- config.def.h	2020-06-04 06:00:31.429918703 -0400
++++ config.h	2020-06-04 06:05:12.131580531 -0400
 @@ -5,8 +5,8 @@
   *
   * font: see http://freedesktop.org/software/fontconfig/fontconfig-user.html
@@ -11,7 +11,7 @@
  static const char *resourceFiles[] = { /* Better Xresources */
  	"~/.config/xconf/Xresources",
  };
-@@ -172,15 +172,15 @@ ResourcePref resources[] = {
+@@ -181,15 +181,15 @@ ResourcePref resources[] = {
  		{ "font",           STRING,  &font           },
  		{ "xcolorsFile",    STRING,  &colorsFile     },
  /*		Use this if you use the alpha or betteralpha patch */
@@ -31,7 +31,7 @@
  		{ "color0",         STRING,  &colorname[0]   },
  		{ "color1",         STRING,  &colorname[1]   },
  		{ "color2",         STRING,  &colorname[2]   },
-@@ -237,31 +237,40 @@ static MouseShortcut mshortcuts[] = {
+@@ -249,31 +249,40 @@ static MouseShortcut mshortcuts[] = {
  /* Internal keyboard shortcuts. */
  #define MODKEY Mod1Mask
  #define TERMMOD (ControlMask|ShiftMask)

@@ -855,10 +855,6 @@ ttyread(void)
 		if (buflen > 0)
 			memmove(buf, buf + written, buflen);
 		return ret;
-<<<<<<< HEAD
-
-=======
->>>>>>> 9ba7ecf7b15ec2986c6142036706aa353b249ef9
 	}
 }
 
@@ -2752,14 +2748,9 @@ draw(void)
 		cx--;
 
 	drawregion(0, 0, term.col, term.row);
-<<<<<<< HEAD
 	if (term.scr == 0) /* Scrollback */
 		xdrawcursor(cx, term.c.y, term.line[term.c.y][cx],
 				term.ocx, term.ocy, term.line[term.ocy][term.ocx]);
-=======
-	xdrawcursor(cx, term.c.y, term.line[term.c.y][cx],
-			term.ocx, term.ocy, term.line[term.ocy][term.ocx]);
->>>>>>> 9ba7ecf7b15ec2986c6142036706aa353b249ef9
 	term.ocx = cx;
 	term.ocy = term.c.y;
 	xfinishdraw();
