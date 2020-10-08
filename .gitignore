@@ -1,3 +1,9 @@
+
 *.o
 st
 config.h
+
+*.orig
+
+compile_commands.json
+.clangd/
