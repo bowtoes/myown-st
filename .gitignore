@@ -1,4 +1,4 @@
-
+.gitignore
 *.o
 st
 config.h
@@ -7,3 +7,4 @@ config.h
 
 compile_commands.json
 .clangd/
+.cache/

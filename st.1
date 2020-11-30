@@ -4,6 +4,7 @@ st \- simple terminal
 .SH SYNOPSIS
 .B st
 .RB [ \-aiv ]
+.RB [ \-F ]\" Start Fullscreen
 .RB [ \-q\" Better Alpha
 .IR alpha ]
 .RB [ \-Q\" Better Alpha
@@ -38,6 +39,7 @@ st \- simple terminal
 .PP
 .B st
 .RB [ \-aiv ]
+.RB [ \-F ]\" Start Fullscreen
 .RB [ \-q\" Better Alpha
 .IR alpha ]
 .RB [ \-Q\" Better Alpha
@@ -86,6 +88,9 @@ defines the secondary alpha value when st has focus
 .TP
 .BI \-R " alpha"\" Better Alpha
 defines the secondary alpha value when st doesn't have focus
+.TP
+.BI \-F \" Start Fullscreen
+create the window in true fullscreen
 .TP
 .BI \-c " class"
 defines the window class (default $TERM).

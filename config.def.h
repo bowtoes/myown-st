@@ -52,6 +52,8 @@ static unsigned int tripleclicktimeout = 600;
 
 /* alt screens */
 int allowaltscreen = 1;
+/* Start Fullscreen */
+int startfullscreen = 0;
 
 /* allow certain non-interactive (insecure) window operations such as:
    setting the clipboard text */

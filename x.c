@@ -75,6 +75,7 @@ static void zoom(const Arg *);
 static void zoomabs(const Arg *);
 static void zoomreset(const Arg *);
 static void ttysend(const Arg *);
+static void togglefscreen(const Arg *); /* Start Fullscreen */
 static void toggleAlpha(const Arg *); /* Better Alpha */
 static void rloadResources(const Arg *); /* Better Xresources */
 
@@ -210,6 +211,8 @@ static int match(uint, uint);
 
 static void run(void);
 static void usage(void);
+
+static void setfullscreen(int); /* Start Fullscreen */
 
 static void (*handler[LASTEvent])(XEvent *) = {
 	[KeyPress] = kpress,
@@ -356,6 +359,15 @@ void
 ttysend(const Arg *arg)
 {
 	ttywrite(arg->s, strlen(arg->s), 1);
+}
+
+/* Start Fullscreen */
+/* TODO: Make this work */
+void
+togglefscreen(const Arg *arg)
+{
+	startfullscreen = !(startfullscreen);
+	setfullscreen(startfullscreen);
 }
 
 int
@@ -1361,6 +1373,9 @@ xinit(int cols, int rows)
 	xw.netwmpid = XInternAtom(xw.dpy, "_NET_WM_PID", False);
 	XChangeProperty(xw.dpy, xw.win, xw.netwmpid, XA_CARDINAL, 32,
 			PropModeReplace, (uchar *)&thispid, 1);
+	/* Start Fullscreen */
+	if (startfullscreen)
+		setfullscreen(startfullscreen);
 
 	win.mode = MODE_NUMLOCK;
 	resettitle();
@@ -2299,14 +2314,30 @@ rloadResources(const Arg *dummy)
 void
 usage(void)
 {
-	die("usage: %s [-aiv] [-q alpha] [-Q alpha] [-r alpha] [-R alpha]"
+	die("usage: %s [-aiv] [-F] [-q alpha] [-Q alpha] [-r alpha] [-R alpha]"
 	    " [-c class] [-f font] [-g geometry]\n"
 	    "         [-n name] [-o file] [-T title] [-t title] [-w windowid]"
 	    " [[-e] command [args ...]]\n"
-	    "       %s [-aiv] [-q alpha] [-Q alpha] [-r alpha] [-R alpha]"
+	    "       %s [-aiv] [-F] [-q alpha] [-Q alpha] [-r alpha] [-R alpha]"
 	    " [-c class] [-f font] [-g geometry]\n"
 	    "         [-n name] [-o file] [-T title] [-t title] [-w windowid] -l line"
 	    " [stty_args ...]\n", argv0, argv0);
+}
+
+/* Start Fullscreen */
+void
+setfullscreen(int f)
+{
+	/* Code for changing fullscreen mode taken from:
+	   https://stackoverflow.com/a/28396773/13528679
+	**/
+	Atom wm_state, wm_fullscreen;
+
+	wm_state = XInternAtom(xw.dpy, "_NET_WM_STATE", False);
+	wm_fullscreen = XInternAtom(xw.dpy, "_NET_WM_STATE_FULLSCREEN", False);
+
+	XChangeProperty(xw.dpy, xw.win, wm_state, XA_ATOM, 32,
+			PropModeReplace, (uchar *)&wm_fullscreen, f);
 }
 
 void /* Better Alpha */
@@ -2340,6 +2371,9 @@ main(int argc, char *argv[])
 		break;
 	case 'R': /* Better Alpha */
 		opt_alpha2NoFocus = EARGF(usage());
+		break;
+	case 'F':
+		startfullscreen = 1;
 		break;
 	case 'c':
 		opt_class = EARGF(usage());
