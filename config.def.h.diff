@@ -1,37 +1,39 @@
---- config.def.h	2020-06-04 06:00:31.429918703 -0400
-+++ config.h	2020-06-04 06:05:12.131580531 -0400
-@@ -5,8 +5,8 @@
+diff --git a/config.def.h b/config.h
+index 1e4e2b7..8d73a7c 100644
+--- a/config.def.h
++++ b/config.h
+@@ -5,14 +5,12 @@
   *
   * font: see http://freedesktop.org/software/fontconfig/fontconfig-user.html
   */
 -static char *font = "Liberation Mono:pixelsize=12:antialias=true:autohint=true";
--static int borderpx = 2;
 +static char *font = "monospace:pixelsize=12:antialias=true:autohint=true";
+ /* Spare fonts */
+ static char *font2[] = {
+-/*	"Inconsolata for Powerline:pixelsize=12:antialias=true:autohint=true", */
+-/*	"Hack Nerd Font Mono:pixelsize=11:antialias=true:autohint=true", */
++	"monospace2:pixelsize=12:antialias=true:autohint=true",
+ };
+-
+-static int borderpx = 2;
 +static int borderpx = 0;
  static const char *resourceFiles[] = { /* Better Xresources */
  	"~/.config/xconf/Xresources",
  };
-@@ -181,15 +181,15 @@ ResourcePref resources[] = {
- 		{ "font",           STRING,  &font           },
- 		{ "xcolorsFile",    STRING,  &colorsFile     },
- /*		Use this if you use the alpha or betteralpha patch */
--/*		{ "alpha",          FLOAT,   &alpha          },    */
+@@ -224,6 +222,12 @@ ResourcePref resources[] = {
+ 		{ "rows",           INTEGER, &rows           },
+ 		{ "cwscale",        FLOAT,   &cwscale        },
+ 		{ "chscale",        FLOAT,   &chscale        },
++
++		{ "baseAlpha",      FLOAT,   &baseAlpha      },
 +		{ "alpha",          FLOAT,   &alpha          },
- /*		Use this if you use the alpha focus patch          */
- /*		{ "alphaUnfocussed",FLOAT,   &alphaUnfocussed},    */
- /*		Use this if you use the betteralpha patch          */
--/*		{ "alphaNoFocus",   FLOAT,   &alphaNoFocus   },    */
 +		{ "alphaNoFocus",   FLOAT,   &alphaNoFocus   },
- /*		Use this if you use the betteralpha patch          */
--/*		{ "alpha2",         FLOAT,   &alpha2         },    */
 +		{ "alpha2",         FLOAT,   &alpha2         },
- /*		Use this if you use the betteralpha patch          */
--/*		{ "alpha2NoFocus",  FLOAT,   &alpha2NoFocus  },    */
 +		{ "alpha2NoFocus",  FLOAT,   &alpha2NoFocus  },
- 		{ "color0",         STRING,  &colorname[0]   },
- 		{ "color1",         STRING,  &colorname[1]   },
- 		{ "color2",         STRING,  &colorname[2]   },
-@@ -249,31 +249,40 @@ static MouseShortcut mshortcuts[] = {
+ };
+ /* --Better Xresources */
+ 
+@@ -250,33 +254,42 @@ static MouseShortcut mshortcuts[] = {
  /* Internal keyboard shortcuts. */
  #define MODKEY Mod1Mask
  #define TERMMOD (ControlMask|ShiftMask)
@@ -68,8 +70,11 @@
 +	{ SHFT,                 XK_Insert,      selpaste,       {.i =  0} },
 +	{ CTRL|SHFT,            XK_Num_Lock,    numlock,        {.i =  0} },
  	/* Better Alpha */
--	{ TERMMOD,              XK_P,           toggleAlpha   , {.i =  0} },
-+	{ CTRL|SHFT,            XK_P,           toggleAlpha,    {.i =  0} },
+-	{ TERMMOD,              XK_P,           toggleAlphaMode,{.i =  0} },
++	{ CTRL|SHFT,            XK_P,           toggleAlphaMode,{.i =  0} },
+ 	/* Better Alpha */
+-	{ TERMMOD,              XK_A,           toggleAlpha,    {.i =  0} },
++	{ CTRL|SHFT,            XK_A,           toggleAlpha,    {.i =  0} },
  	/* Better Xresources */
 -	{ TERMMOD,              XK_R,           rloadResources, {.i =  0} },
 +	{ CTRL|SHFT,            XK_R,           rloadResources, {.i =  0} },

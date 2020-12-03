@@ -105,9 +105,12 @@ char *termname = "st-256color";
  */
 unsigned int tabspaces = 8;
 
-static float alpha = 0.8; /* Better Alpha */
-static float alphaNoFocus = 0.6; /* Better Alpha */
-static float alpha2 = 0.6; /* Better Alpha */
+static int alphaMode       = 1;   /* Better Alpha */
+static int alphaOn         = 1;   /* Better Alpha */
+static float baseAlpha     = 1.0; /* Better Alpha */
+static float alpha         = 0.8; /* Better Alpha */
+static float alphaNoFocus  = 0.6; /* Better Alpha */
+static float alpha2        = 0.6; /* Better Alpha */
 static float alpha2NoFocus = 0.8; /* Better Alpha */
 
 /* Terminal colors (16 first used in escape sequence) */
@@ -188,16 +191,6 @@ ResourcePref resources[] = {
 		/* Name             Type     Variable */
 		{ "font",           STRING,  &font           },
 		{ "xcolorsFile",    STRING,  &colorsFile     },
-/*		Use this if you use the alpha or betteralpha patch */
-/*		{ "alpha",          FLOAT,   &alpha          },    */
-/*		Use this if you use the alpha focus patch          */
-/*		{ "alphaUnfocussed",FLOAT,   &alphaUnfocussed},    */
-/*		Use this if you use the betteralpha patch          */
-/*		{ "alphaNoFocus",   FLOAT,   &alphaNoFocus   },    */
-/*		Use this if you use the betteralpha patch          */
-/*		{ "alpha2",         FLOAT,   &alpha2         },    */
-/*		Use this if you use the betteralpha patch          */
-/*		{ "alpha2NoFocus",  FLOAT,   &alpha2NoFocus  },    */
 		{ "color0",         STRING,  &colorname[0]   },
 		{ "color1",         STRING,  &colorname[1]   },
 		{ "color2",         STRING,  &colorname[2]   },
@@ -273,7 +266,9 @@ static Shortcut shortcuts[] = {
 	{ ShiftMask,            XK_Insert,      selpaste,       {.i =  0} },
 	{ TERMMOD,              XK_Num_Lock,    numlock,        {.i =  0} },
 	/* Better Alpha */
-	{ TERMMOD,              XK_P,           toggleAlpha   , {.i =  0} },
+	{ TERMMOD,              XK_P,           toggleAlphaMode,{.i =  0} },
+	/* Better Alpha */
+	{ TERMMOD,              XK_A,           toggleAlpha,    {.i =  0} },
 	/* Better Xresources */
 	{ TERMMOD,              XK_R,           rloadResources, {.i =  0} },
 	/* ISO14755 */

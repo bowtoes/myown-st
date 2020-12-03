@@ -76,7 +76,9 @@ static void zoomabs(const Arg *);
 static void zoomreset(const Arg *);
 static void ttysend(const Arg *);
 static void togglefscreen(const Arg *); /* Start Fullscreen */
+static void setAlpha(const Arg *); /* Better Alpha */
 static void toggleAlpha(const Arg *); /* Better Alpha */
+static void toggleAlphaMode(const Arg *); /* Better Alpha */
 static void rloadResources(const Arg *); /* Better Xresources */
 
 /* config.h for applying patches and the configuration. */
@@ -212,6 +214,7 @@ static int match(uint, uint);
 static void run(void);
 static void usage(void);
 
+static void loadAlpha(void); /* Better Alpha */
 static void setfullscreen(int); /* Start Fullscreen */
 
 static void (*handler[LASTEvent])(XEvent *) = {
@@ -269,7 +272,6 @@ static double usedfontsize = 0;
 static double defaultfontsize = 0;
 
 static int focused             = 1;    /* Better Alpha */
-static int alphaMode           = 1;    /* Better Alpha */
 static char *opt_alpha         = NULL; /* Better Alpha */
 static char *opt_alphaNoFocus  = NULL; /* Better Alpha */
 static char *opt_alpha2        = NULL; /* Better Alpha */
@@ -285,6 +287,59 @@ static char *opt_title = NULL;
 static char *opt_dir   = NULL; /* Working Directory */
 
 static int oldbutton = 3; /* button event on startup: 3 = release */
+
+/* Better Alpha */
+void
+setAlpha(const Arg *arg)
+{
+	const float usedAlpha = arg->f;
+	dc.col[defaultbg].color.alpha = (unsigned short)(0xffff * usedAlpha);
+	dc.col[defaultbg].pixel &= 0x00FFFFFF;
+	dc.col[defaultbg].pixel |= (unsigned char)(0xff * usedAlpha) << 24;
+}
+
+/* Better Alpha */
+void
+loadAlpha(void)
+{
+	Arg arg;
+	if (alphaOn)
+	{
+		/* set alpha value of bg color */
+		if (opt_alpha)
+			alpha = strtof(opt_alpha, NULL);
+		if (opt_alphaNoFocus)
+			alphaNoFocus = strtof(opt_alphaNoFocus, NULL);
+		if (opt_alpha2)
+			alpha2 = strtof(opt_alpha2, NULL);
+		if (opt_alpha2NoFocus)
+			alpha2NoFocus = strtof(opt_alpha2NoFocus, NULL);
+
+		arg.f = alphaMode ? (focused * alpha  + (1 - focused) * alphaNoFocus):
+		                    (focused * alpha2 + (1 - focused) * alpha2NoFocus);
+	}
+	else
+		arg.f = baseAlpha;
+	setAlpha(&arg);
+}
+
+/* Better Alpha */
+void
+toggleAlpha(const Arg *dummy)
+{
+	alphaOn = !(alphaOn);
+	loadAlpha();
+	redraw();
+}
+
+/* Better Alpha */
+void
+toggleAlphaMode(const Arg *dummy)
+{
+	alphaMode = alphaMode ^ alphaOn;
+	loadAlpha();
+	redraw();
+}
 
 void
 clipcopy(const Arg *dummy)
@@ -819,29 +874,6 @@ xloadcolor(int i, const char *name, Color *ncolor)
 	return XftColorAllocName(xw.dpy, xw.vis, xw.cmap, name, ncolor);
 }
 
-/* Better Alpha */
-void
-xloadalpha(void)
-{
-
-	/* set alpha value of bg color */
-	if (opt_alpha)
-		alpha = strtof(opt_alpha, NULL);
-	if (opt_alphaNoFocus)
-		alphaNoFocus = strtof(opt_alphaNoFocus, NULL);
-	if (opt_alpha2)
-		alpha2 = strtof(opt_alpha2, NULL);
-	if (opt_alpha2NoFocus)
-		alpha2NoFocus = strtof(opt_alpha2NoFocus, NULL);
-
-	const float usedAlpha = alphaMode ?
-	                        (focused * alpha  + (1 - focused) * alphaNoFocus ):
-	                        (focused * alpha2 + (1 - focused) * alpha2NoFocus);
-	dc.col[defaultbg].color.alpha = (unsigned short)(0xffff * usedAlpha);
-	dc.col[defaultbg].pixel &= 0x00FFFFFF;
-	dc.col[defaultbg].pixel |= (unsigned char)(0xff * usedAlpha) << 24;
-}
-
 void
 xloadcols(void)
 {
@@ -864,7 +896,7 @@ xloadcols(void)
 			else
 				die("could not allocate color %d\n", i);
 		}
-	xloadalpha(); /* Better Alpha */
+	loadAlpha(); /* Better Alpha */
 	loaded = 1;
 }
 
@@ -1095,7 +1127,7 @@ xloadsparefont(FcPattern *pattern, int flags)
 {
 	FcPattern *match;
 	FcResult result;
-	
+
 	match = FcFontMatch(NULL, pattern, &result);
 	if (!match) {
 		return 1;
@@ -1137,50 +1169,50 @@ xloadsparefonts(void)
 	}
 
 	for (fp = font2; fp - font2 < fc; ++fp) {
-	
+
 		if (**fp == '-')
 			pattern = XftXlfdParse(*fp, False, False);
 		else
 			pattern = FcNameParse((FcChar8 *)*fp);
-	
+
 		if (!pattern)
 			die("can't open spare font %s\n", *fp);
-	   		
+
 		if (defaultfontsize > 0) {
 			sizeshift = usedfontsize - defaultfontsize;
 			if (sizeshift != 0 &&
 					FcPatternGetDouble(pattern, FC_PIXEL_SIZE, 0, &fontval) ==
-					FcResultMatch) {	
+					FcResultMatch) {
 				fontval += sizeshift;
 				FcPatternDel(pattern, FC_PIXEL_SIZE);
 				FcPatternDel(pattern, FC_SIZE);
 				FcPatternAddDouble(pattern, FC_PIXEL_SIZE, fontval);
 			}
 		}
-	
+
 		FcPatternAddBool(pattern, FC_SCALABLE, 1);
-	
+
 		FcConfigSubstitute(NULL, pattern, FcMatchPattern);
 		XftDefaultSubstitute(xw.dpy, xw.scr, pattern);
-	
+
 		if (xloadsparefont(pattern, FRC_NORMAL))
 			die("can't open spare font %s\n", *fp);
-	
+
 		FcPatternDel(pattern, FC_SLANT);
 		FcPatternAddInteger(pattern, FC_SLANT, FC_SLANT_ITALIC);
 		if (xloadsparefont(pattern, FRC_ITALIC))
 			die("can't open spare font %s\n", *fp);
-			
+
 		FcPatternDel(pattern, FC_WEIGHT);
 		FcPatternAddInteger(pattern, FC_WEIGHT, FC_WEIGHT_BOLD);
 		if (xloadsparefont(pattern, FRC_ITALICBOLD))
 			die("can't open spare font %s\n", *fp);
-	
+
 		FcPatternDel(pattern, FC_SLANT);
 		FcPatternAddInteger(pattern, FC_SLANT, FC_SLANT_ROMAN);
 		if (xloadsparefont(pattern, FRC_BOLD))
 			die("can't open spare font %s\n", *fp);
-	
+
 		FcPatternDestroy(pattern);
 	}
 }
@@ -1930,7 +1962,7 @@ focus(XEvent *ev)
 			ttywrite("\033[I", 3, 0);
 		if (!focused) { /* Better Alpha */
 			focused = 1;
-			xloadalpha();
+			loadAlpha();
 			redraw();
 		}
 	} else {
@@ -1941,7 +1973,7 @@ focus(XEvent *ev)
 			ttywrite("\033[O", 3, 0);
 		if (focused) { /* Better Alpha */
 			focused = 0;
-			xloadalpha();
+			loadAlpha();
 			redraw();
 		}
 	}
@@ -2339,15 +2371,6 @@ setfullscreen(int f)
 	XChangeProperty(xw.dpy, xw.win, wm_state, XA_ATOM, 32,
 			PropModeReplace, (uchar *)&wm_fullscreen, f);
 }
-
-void /* Better Alpha */
-toggleAlpha(const Arg *dummy)
-{
-	alphaMode = !(alphaMode);
-	xloadalpha();
-	redraw();
-}
-
 
 int
 main(int argc, char *argv[])
