@@ -365,7 +365,6 @@ useAlpha(const Arg *arg)
 	dc.col[defaultbg].color.red = (unsigned short)(baseColor.color.red * a);
 	dc.col[defaultbg].color.green = (unsigned short)(baseColor.color.green * a);
 	dc.col[defaultbg].color.blue = (unsigned short)(baseColor.color.blue * a);
-	dc.col[defaultbg] = c;
 }
 
 /* Better Alpha */
