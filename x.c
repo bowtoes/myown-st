@@ -333,6 +333,7 @@ updateAlpha(void)
 {
 	Arg arg;
 	arg.f = pickAlpha() * baseAlpha;
+	arg.f = arg.f > 1 ? 1 : arg.f;
 	useAlpha(&arg);
 }
 
@@ -350,6 +351,7 @@ void
 modAlpha(const Arg *arg)
 {
 	baseAlpha += arg->f;
+	baseAlpha = baseAlpha < 0 ? 0 : baseAlpha;
 	updateAlpha();
 	redraw();
 }
@@ -360,7 +362,7 @@ useAlpha(const Arg *arg)
 {
 	/* I have no idea why pixel was being set to before. */
 	/* I have hardly any understanding of X either, but oh well */
-	const float a = arg->f < 0 ? 0 : arg->f > 1 ? 1 : arg->f;
+	const float a = arg->f;
 	dc.col[defaultbg].color.alpha = (unsigned short)(0xffff * a);
 	dc.col[defaultbg].color.red = (unsigned short)(baseColor.color.red * a);
 	dc.col[defaultbg].color.green = (unsigned short)(baseColor.color.green * a);

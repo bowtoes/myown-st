@@ -1,18 +1,21 @@
 diff --git a/config.def.h b/config.h
-index 1e4e2b7..8d73a7c 100644
+index 82c8caa..a5fd758 100644
 --- a/config.def.h
 +++ b/config.h
-@@ -5,14 +5,12 @@
+@@ -5,14 +5,15 @@
   *
   * font: see http://freedesktop.org/software/fontconfig/fontconfig-user.html
   */
 -static char *font = "Liberation Mono:pixelsize=12:antialias=true:autohint=true";
 +static char *font = "monospace:pixelsize=12:antialias=true:autohint=true";
  /* Spare fonts */
++/* TODO: Custom fonts don't seem to change? */
  static char *font2[] = {
 -/*	"Inconsolata for Powerline:pixelsize=12:antialias=true:autohint=true", */
 -/*	"Hack Nerd Font Mono:pixelsize=11:antialias=true:autohint=true", */
 +	"monospace2:pixelsize=12:antialias=true:autohint=true",
++	"japanese:pixelsize=12:antialias=true:autohint=true",
++	"math:pixelsize=12:antialias=true:autohint=true",
  };
 -
 -static int borderpx = 2;
@@ -20,7 +23,7 @@ index 1e4e2b7..8d73a7c 100644
  static const char *resourceFiles[] = { /* Better Xresources */
  	"~/.config/xconf/Xresources",
  };
-@@ -224,6 +222,12 @@ ResourcePref resources[] = {
+@@ -224,6 +225,12 @@ ResourcePref resources[] = {
  		{ "rows",           INTEGER, &rows           },
  		{ "cwscale",        FLOAT,   &cwscale        },
  		{ "chscale",        FLOAT,   &chscale        },
@@ -33,7 +36,7 @@ index 1e4e2b7..8d73a7c 100644
  };
  /* --Better Xresources */
  
-@@ -250,33 +254,42 @@ static MouseShortcut mshortcuts[] = {
+@@ -250,39 +257,48 @@ static MouseShortcut mshortcuts[] = {
  /* Internal keyboard shortcuts. */
  #define MODKEY Mod1Mask
  #define TERMMOD (ControlMask|ShiftMask)
@@ -75,6 +78,15 @@ index 1e4e2b7..8d73a7c 100644
  	/* Better Alpha */
 -	{ TERMMOD,              XK_A,           toggleAlpha,    {.i =  0} },
 +	{ CTRL|SHFT,            XK_A,           toggleAlpha,    {.i =  0} },
+ 	/* Better Alpha */
+-	{ TERMMOD,              XK_Up,          modAlpha,       {.f = +0.05} },
++	{ CTRL|SHFT,            XK_Up,          modAlpha,       {.f = +0.05} },
+ 	/* Better Alpha */
+-	{ TERMMOD,              XK_Down,        modAlpha,       {.f = -0.05} },
++	{ CTRL|SHFT,            XK_Down,        modAlpha,       {.f = -0.05} },
+ 	/* Better Alpha */
+-	{ TERMMOD,              XK_O,           resetAlpha,     {.i =  0} },
++	{ CTRL|SHFT,            XK_O,           resetAlpha,     {.i =  0} },
  	/* Better Xresources */
 -	{ TERMMOD,              XK_R,           rloadResources, {.i =  0} },
 +	{ CTRL|SHFT,            XK_R,           rloadResources, {.i =  0} },
