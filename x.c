@@ -1467,6 +1467,14 @@ xinit(int cols, int rows)
 	XWindowAttributes attr; /* Better Alpha */
 	XVisualInfo vis; /* Better Alpha */
 
+	if (opt_borderpxx) /* xypadding */
+		borderpxx = (int)strtof(opt_borderpxx, NULL);
+	if (opt_borderpxy) /* xypadding */
+		borderpxy = (int)strtof(opt_borderpxy, NULL);
+
+	def_borderpxx = borderpxx; /* xypadding */
+	def_borderpxy = borderpxy; /* xypadding */
+
 	xw.scr = XDefaultScreen(xw.dpy);
 
 	/* Better Alpha */
