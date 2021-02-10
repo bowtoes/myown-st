@@ -29,6 +29,10 @@ st \- simple terminal
 .IR title ]
 .RB [ \-t
 .IR title ]
+.RB [ \-X
+.IR x-border ]
+.RB [ \-Y
+.IR y-border ]
 .RB [ \-l
 .IR line ]
 .RB [ \-w
@@ -64,6 +68,10 @@ st \- simple terminal
 .IR title ]
 .RB [ \-t
 .IR title ]
+.RB [ \-X
+.IR x-border ]
+.RB [ \-Y
+.IR y-border ]
 .RB [ \-w
 .IR windowid ]
 .RB \-l
@@ -127,6 +135,12 @@ defines the window title (default 'st').
 .TP
 .BI \-t " title"
 defines the window title (default 'st').
+.TP
+.BI \-X " border"
+defines st text internal border width.
+.TP
+.BI \-Y " border"
+defines st text internal border height.
 .TP
 .BI \-w " windowid"
 embeds st within the window identified by

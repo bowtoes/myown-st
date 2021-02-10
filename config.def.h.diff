@@ -1,8 +1,8 @@
 diff --git a/config.def.h b/config.h
-index 82c8caa..a5fd758 100644
+index c1086f3..57e53cb 100644
 --- a/config.def.h
 +++ b/config.h
-@@ -5,14 +5,15 @@
+@@ -5,15 +5,16 @@
   *
   * font: see http://freedesktop.org/software/fontconfig/fontconfig-user.html
   */
@@ -18,12 +18,21 @@ index 82c8caa..a5fd758 100644
 +	"math:pixelsize=12:antialias=true:autohint=true",
  };
 -
--static int borderpx = 2;
-+static int borderpx = 0;
+-static int borderpxx = 30; /* xypadding */
+-static int borderpxy = 60; /* xypadding */
++static int borderpxx = 0; /* xypadding */
++static int borderpxy = 0; /* xypadding */
  static const char *resourceFiles[] = { /* Better Xresources */
  	"~/.config/xconf/Xresources",
  };
-@@ -224,6 +225,12 @@ ResourcePref resources[] = {
+@@ -220,11 +221,18 @@ ResourcePref resources[] = {
+ 		{ "blinkTime",      INTEGER, &blinktimeout   },
+ 		{ "bellvolume",     INTEGER, &bellvolume     },
+ 		{ "tabspaces",      INTEGER, &tabspaces      },
+-		{ "borderpx",       INTEGER, &borderpx       },
++		{ "borderpxx",      INTEGER, &borderpxx      },
++		{ "borderpxy",      INTEGER, &borderpxy      },
+ 		{ "cols",           INTEGER, &cols           },
  		{ "rows",           INTEGER, &rows           },
  		{ "cwscale",        FLOAT,   &cwscale        },
  		{ "chscale",        FLOAT,   &chscale        },
@@ -36,7 +45,7 @@ index 82c8caa..a5fd758 100644
  };
  /* --Better Xresources */
  
-@@ -250,39 +257,48 @@ static MouseShortcut mshortcuts[] = {
+@@ -251,53 +259,62 @@ static MouseShortcut mshortcuts[] = {
  /* Internal keyboard shortcuts. */
  #define MODKEY Mod1Mask
  #define TERMMOD (ControlMask|ShiftMask)
@@ -59,6 +68,20 @@ index 82c8caa..a5fd758 100644
 -	{ TERMMOD,              XK_Prior,       zoom,           {.f = +1} },
 -	{ TERMMOD,              XK_Next,        zoom,           {.f = -1} },
 -	{ TERMMOD,              XK_Home,        zoomreset,      {.f =  0} },
+-	{ ControlMask,          XK_Home,        borderpxsetx,   {.i =  0} }, /* xypadding */
+-	{ ShiftMask,            XK_Home,        borderpxsety,   {.i =  0} }, /* xypadding */
+-	{ MODKEY|TERMMOD,       XK_Home,        borderpxsetxy,  {.i =  0} }, /* xypadding */
+-	{ MODKEY|ControlMask,   XK_Page_Up,     borderpxmodx,   {.i = +1} }, /* xypadding */
+-	{ MODKEY|ControlMask,   XK_Page_Down,   borderpxmodx,   {.i = -1} }, /* xypadding */
+-	{ MODKEY|ShiftMask,     XK_Page_Up,     borderpxmody,   {.i = +1} }, /* xypadding */
+-	{ MODKEY|ShiftMask,     XK_Page_Down,   borderpxmody,   {.i = -1} }, /* xypadding */
+-	{ MODKEY|TERMMOD,       XK_Page_Up,     borderpxmodxy,  {.i = +1} }, /* xypadding */
+-	{ MODKEY|TERMMOD,       XK_Page_Down,   borderpxmodxy,  {.i = -1} }, /* xypadding */
+-	{ ControlMask,          XK_End,         borderpxsquarex,{.i =  0} }, /* xypadding */
+-	{ ShiftMask,            XK_End,         borderpxsquarey,{.i =  0} }, /* xypadding */
+-	{ ControlMask,          XK_Delete,      borderpxresetx, {.i =  0} }, /* xypadding */
+-	{ ShiftMask,            XK_Delete,      borderpxresety, {.i =  0} }, /* xypadding */
+-	{ MODKEY|TERMMOD,       XK_Delete,      borderpxreset,  {.i =  0} }, /* xypadding */
 -	{ TERMMOD,              XK_C,           clipcopy,       {.i =  0} },
 -	{ TERMMOD,              XK_V,           clippaste,      {.i =  0} },
 -	{ TERMMOD,              XK_Y,           selpaste,       {.i =  0} },
@@ -67,6 +90,20 @@ index 82c8caa..a5fd758 100644
 +	{ CTRL|SHFT,            XK_Page_Up,     zoom,           {.f = +1} },
 +	{ CTRL|SHFT,            XK_Page_Down,   zoom,           {.f = -1} },
 +	{ CTRL|SHFT,            XK_Home,        zoomreset,      {.f =  0} },
++	{ CTRL,                 XK_Home,        borderpxsetx,   {.i =  0} }, /* xypadding */
++	{ SHFT,                 XK_Home,        borderpxsety,   {.i =  0} }, /* xypadding */
++	{ MOD1|CTRL|SHFT,       XK_Home,        borderpxsetxy,  {.i =  0} }, /* xypadding */
++	{ MOD1|CTRL,            XK_Page_Up,     borderpxmodx,   {.i = +1} }, /* xypadding */
++	{ MOD1|CTRL,            XK_Page_Down,   borderpxmodx,   {.i = -1} }, /* xypadding */
++	{ MOD1|SHFT,            XK_Page_Up,     borderpxmody,   {.i = +1} }, /* xypadding */
++	{ MOD1|SHFT,            XK_Page_Down,   borderpxmody,   {.i = -1} }, /* xypadding */
++	{ MOD1|CTRL|SHFT,       XK_Page_Up,     borderpxmodxy,  {.i = +1} }, /* xypadding */
++	{ MOD1|CTRL|SHFT,       XK_Page_Down,   borderpxmodxy,  {.i = -1} }, /* xypadding */
++	{ CTRL,                 XK_End,         borderpxsquarex,{.i =  0} }, /* xypadding */
++	{ SHFT,                 XK_End,         borderpxsquarey,{.i =  0} }, /* xypadding */
++	{ CTRL,                 XK_Delete,      borderpxresetx, {.i =  0} }, /* xypadding */
++	{ SHFT,                 XK_Delete,      borderpxresety, {.i =  0} }, /* xypadding */
++	{ MOD1|CTRL|SHFT,       XK_Delete,      borderpxreset,  {.i =  0} }, /* xypadding */
 +	{ CTRL|SHFT,            XK_C,           clipcopy,       {.i =  0} },
 +	{ CTRL|SHFT,            XK_V,           clippaste,      {.i =  0} },
 +	{ CTRL|SHFT,            XK_Y,           selpaste,       {.i =  0} },

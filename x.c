@@ -81,6 +81,17 @@ static void modAlpha(const Arg *); /* Better Alpha */
 static void useAlpha(const Arg *); /* Better Alpha */
 static void toggleAlpha(const Arg *); /* Better Alpha */
 static void toggleAlphaMode(const Arg *); /* Better Alpha */
+static void borderpxsetx(const Arg *); /* xypadding */
+static void borderpxsety(const Arg *); /* xypadding */
+static void borderpxsetxy(const Arg *); /* xypadding */
+static void borderpxmodx(const Arg *); /* xypadding */
+static void borderpxmody(const Arg *); /* xypadding */
+static void borderpxmodxy(const Arg *); /* xypadding */
+static void borderpxsquarex(const Arg *); /* xypadding */
+static void borderpxsquarey(const Arg *); /* xypadding */
+static void borderpxresetx(const Arg *); /* xypadding */
+static void borderpxresety(const Arg *); /* xypadding */
+static void borderpxreset(const Arg *); /* xypadding */
 
 /* config.h for applying patches and the configuration. */
 #include "config.h"
@@ -276,6 +287,10 @@ static char *usedfont = NULL;
 static double usedfontsize = 0;
 static double defaultfontsize = 0;
 
+static int  def_borderpxx = 0; /* xypadding */
+static int  def_borderpxy = 0; /* xypadding */
+static char *opt_borderpxx = NULL; /* xypadding */
+static char *opt_borderpxy = NULL; /* xypadding */
 static Color baseColor; /* Better Alpha */
 static float defBaseAlpha      = 0;    /* Better Alpha */
 static int focused             = 1;    /* Better Alpha */
@@ -469,6 +484,108 @@ togglefscreen(const Arg *arg)
 {
 	startfullscreen = !(startfullscreen);
 	setfullscreen(startfullscreen);
+}
+
+/* xypadding */
+void
+borderpxsetx(const Arg *arg)
+{
+	borderpxx = arg->i;
+	cresize(0, 0);
+	redraw();
+}
+
+/* xypadding */
+void
+borderpxsety(const Arg *arg)
+{
+	borderpxy = arg->i;
+	cresize(0, 0);
+	redraw();
+}
+
+/* xypadding */
+void
+borderpxsetxy(const Arg *arg)
+{
+	borderpxx = arg->i;
+	borderpxy = arg->i;
+	cresize(0, 0);
+	redraw();
+}
+
+/* xypadding */
+void
+borderpxmodx(const Arg *arg)
+{
+	borderpxx += arg->i;
+	cresize(0, 0);
+	redraw();
+}
+
+/* xypadding */
+void
+borderpxmody(const Arg *arg)
+{
+	borderpxy += arg->i;
+	cresize(0, 0);
+	redraw();
+}
+
+/* xypadding */
+void
+borderpxmodxy(const Arg *arg)
+{
+	borderpxx += arg->i;
+	borderpxy += arg->i;
+	cresize(0, 0);
+	redraw();
+}
+
+/* xypadding */
+void
+borderpxsquarex(const Arg *arg)
+{
+	 borderpxx = borderpxy;
+	 cresize(0, 0);
+	 redraw();
+}
+
+/* xypadding */
+void
+borderpxsquarey(const Arg *arg)
+{
+	 borderpxy = borderpxx;
+	 cresize(0, 0);
+	 redraw();
+}
+
+/* xypadding */
+void
+borderpxresetx(const Arg *arg)
+{
+	 borderpxx = def_borderpxx;
+	 cresize(0, 0);
+	 redraw();
+}
+
+/* xypadding */
+void
+borderpxresety(const Arg *arg)
+{
+	 borderpxy = def_borderpxy;
+	 cresize(0, 0);
+	 redraw();
+}
+
+/* xypadding */
+void
+borderpxreset(const Arg *arg)
+{
+	 borderpxx = def_borderpxx;
+	 borderpxy = def_borderpxy;
+	 cresize(0, 0);
+	 redraw();
 }
 
 int
@@ -861,13 +978,13 @@ cresize(int width, int height)
 	if (height != 0)
 		win.h = height;
 
-	col = (win.w - 2 * borderpx) / win.cw;
-	row = (win.h - 2 * borderpx) / win.ch;
+	col = (win.w - 2 * borderpxx) / win.cw; /* xypadding */
+	row = (win.h - 2 * borderpxy) / win.ch; /* xypadding */
 	col = MAX(1, col);
 	row = MAX(1, row);
 
-	win.hborderpx = (win.w - col * win.cw) / 2; /* Anysize */
-	win.vborderpx = (win.h - row * win.ch) / 2; /* Anysize */
+	win.hborderpx = borderpxx; /* Anysize */
+	win.vborderpx = borderpxy; /* Anysize */
 
 	tresize(col, row);
 	xresize(col, row);
@@ -989,10 +1106,10 @@ xhints(void)
 	sizeh->width = win.w;
 	sizeh->height_inc = 1; /* Anysize */
 	sizeh->width_inc = 1; /* Anysize */
-	sizeh->base_height = 2 * borderpx;
-	sizeh->base_width = 2 * borderpx;
-	sizeh->min_height = win.ch + 2 * borderpx;
-	sizeh->min_width = win.cw + 2 * borderpx;
+	sizeh->base_height = 2 * borderpxy; /* xypadding */
+	sizeh->base_width = 2 * borderpxx; /* xypadding */
+	sizeh->min_height = win.ch + 2 * borderpxy; /* xypadding */
+	sizeh->min_width = win.cw + 2 * borderpxx; /* xypadding */
 	if (xw.isfixed) {
 		sizeh->flags |= PMaxSize;
 		sizeh->min_width = sizeh->max_width = win.w;
@@ -1921,8 +2038,8 @@ xximspot(int x, int y)
 	if (xw.ime.xic == NULL)
 		return;
 
-	xw.ime.spot.x = borderpx + x * win.cw;
-	xw.ime.spot.y = borderpx + (y + 1) * win.ch;
+	xw.ime.spot.x = borderpxx + x * win.cw; /* xypadding */
+	xw.ime.spot.y = borderpxy + (y + 1) * win.ch; /* xypadding */
 
 	XSetICValues(xw.ime.xic, XNPreeditAttributes, xw.ime.spotlist, NULL);
 }
@@ -2476,6 +2593,12 @@ main(int argc, char *argv[])
 	case 't':
 	case 'T':
 		opt_title = EARGF(usage());
+		break;
+	case 'X': /* xypadding */
+		opt_borderpxx = EARGF(usage());
+		break;
+	case 'Y': /* xypadding */
+		opt_borderpxy = EARGF(usage());
 		break;
 	case 'w':
 		opt_embed = EARGF(usage());
