@@ -102,7 +102,7 @@ index 39120b4..da2ac74 100644
  defines the window class (default $TERM).
  .TP
 diff --git a/x.c b/x.c
-index 120e495..001d698 100644
+index 120e495..2148939 100644
 --- a/x.c
 +++ b/x.c
 @@ -59,6 +59,11 @@ static void zoom(const Arg *);
@@ -150,7 +150,7 @@ index 120e495..001d698 100644
  static char *opt_class = NULL;
  static char **opt_cmd  = NULL;
  static char *opt_embed = NULL;
-@@ -254,6 +271,96 @@ static char *opt_title = NULL;
+@@ -254,6 +271,100 @@ static char *opt_title = NULL;
  
  static int oldbutton = 3; /* button event on startup: 3 = release */
  
@@ -201,6 +201,7 @@ index 120e495..001d698 100644
 +{
 +	baseAlpha = defBaseAlpha;
 +	updateAlpha();
++	cresize(0,0);
 +	redraw();
 +}
 +
@@ -210,6 +211,7 @@ index 120e495..001d698 100644
 +{
 +	baseAlpha += arg->f;
 +	updateAlpha();
++	cresize(0,0);
 +	redraw();
 +}
 +
@@ -232,6 +234,7 @@ index 120e495..001d698 100644
 +{
 +	alphaOn = !(alphaOn);
 +	updateAlpha();
++	cresize(0,0);
 +	redraw();
 +}
 +
@@ -241,13 +244,14 @@ index 120e495..001d698 100644
 +{
 +	alphaMode = alphaMode ^ alphaOn;
 +	updateAlpha();
++	cresize(0,0);
 +	redraw();
 +}
 +
  void
  clipcopy(const Arg *dummy)
  {
-@@ -734,7 +841,7 @@ xresize(int col, int row)
+@@ -734,7 +845,7 @@ xresize(int col, int row)
  
  	XFreePixmap(xw.dpy, xw.buf);
  	xw.buf = XCreatePixmap(xw.dpy, xw.win, win.w, win.h,
@@ -256,7 +260,7 @@ index 120e495..001d698 100644
  	XftDrawChange(xw.draw, xw.buf);
  	xclear(0, 0, win.w, win.h);
  
-@@ -794,6 +901,7 @@ xloadcols(void)
+@@ -794,6 +905,7 @@ xloadcols(void)
  			else
  				die("could not allocate color %d\n", i);
  		}
@@ -264,7 +268,7 @@ index 120e495..001d698 100644
  	loaded = 1;
  }
  
-@@ -1103,11 +1211,26 @@ xinit(int cols, int rows)
+@@ -1103,11 +1215,26 @@ xinit(int cols, int rows)
  	Window parent;
  	pid_t thispid = getpid();
  	XColor xmousefg, xmousebg;
@@ -292,7 +296,7 @@ index 120e495..001d698 100644
  
  	/* font */
  	if (!FcInit())
-@@ -1117,7 +1240,7 @@ xinit(int cols, int rows)
+@@ -1117,7 +1244,7 @@ xinit(int cols, int rows)
  	xloadfonts(usedfont, 0);
  
  	/* colors */
@@ -301,7 +305,7 @@ index 120e495..001d698 100644
  	xloadcols();
  
  	/* adjust fixed window geometry */
-@@ -1137,19 +1260,18 @@ xinit(int cols, int rows)
+@@ -1137,19 +1264,18 @@ xinit(int cols, int rows)
  		| ButtonMotionMask | ButtonPressMask | ButtonReleaseMask;
  	xw.attrs.colormap = xw.cmap;
  
@@ -326,7 +330,7 @@ index 120e495..001d698 100644
  	XSetForeground(xw.dpy, dc.gc, dc.col[defaultbg].pixel);
  	XFillRectangle(xw.dpy, xw.buf, dc.gc, 0, 0, win.w, win.h);
  
-@@ -1744,12 +1866,24 @@ focus(XEvent *ev)
+@@ -1744,12 +1870,26 @@ focus(XEvent *ev)
  		xseturgency(0);
  		if (IS_SET(MODE_FOCUS))
  			ttywrite("\033[I", 3, 0);
@@ -334,6 +338,7 @@ index 120e495..001d698 100644
 +		if (!focused) {
 +			focused = 1;
 +			updateAlpha();
++			cresize(0,0);
 +			redraw();
 +		}
  	} else {
@@ -346,12 +351,13 @@ index 120e495..001d698 100644
 +		if (focused) {
 +			focused = 0;
 +			updateAlpha();
++			cresize(0,0);
 +			redraw();
 +		}
  	}
  }
  
-@@ -1981,13 +2115,13 @@ run(void)
+@@ -1981,13 +2121,13 @@ run(void)
  void
  usage(void)
  {
@@ -371,7 +377,7 @@ index 120e495..001d698 100644
  	    " [stty_args ...]\n", argv0, argv0);
  }
  
-@@ -2002,6 +2136,18 @@ main(int argc, char *argv[])
+@@ -2002,6 +2142,18 @@ main(int argc, char *argv[])
  	case 'a':
  		allowaltscreen = 0;
  		break;
