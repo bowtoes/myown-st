@@ -366,11 +366,13 @@ resetAlpha(const Arg *dummy)
 void
 modAlpha(const Arg *arg)
 {
-	baseAlpha += arg->f;
-	baseAlpha = baseAlpha < 0 ? 0 : baseAlpha;
-	updateAlpha();
-	cresize(0,0);
-	redraw();
+	if (alphaOn) {
+		baseAlpha += arg->f;
+		baseAlpha = baseAlpha < 0 ? 0 : baseAlpha;
+		updateAlpha();
+		cresize(0,0);
+		redraw();
+	}
 }
 
 /* Better Alpha */
@@ -390,7 +392,7 @@ useAlpha(const Arg *arg)
 void
 toggleAlpha(const Arg *dummy)
 {
-	alphaOn = !(alphaOn);
+	alphaOn = !alphaOn;
 	updateAlpha();
 	cresize(0,0);
 	redraw();
@@ -400,10 +402,12 @@ toggleAlpha(const Arg *dummy)
 void
 toggleAlphaMode(const Arg *dummy)
 {
-	alphaMode = alphaMode ^ alphaOn;
-	updateAlpha();
-	cresize(0,0);
-	redraw();
+	if (alphaOn) {
+		alphaMode = !alphaMode;
+		updateAlpha();
+		cresize(0,0);
+		redraw();
+	}
 }
 
 void
