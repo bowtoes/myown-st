@@ -2524,6 +2524,11 @@ rloadResources(const Arg *dummy)
 	loadResources();
 	xloadcols();
 	cresize(win.w, win.h);
+	if (font) {
+		Arg larg = {.f = usedfontsize};
+		usedfont = font;
+		zoomabs(&larg);
+	}
 }
 
 void
